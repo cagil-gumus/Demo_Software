@@ -135,7 +135,7 @@ class CustomPlotWidget(pg.PlotWidget):
         self.setTitle('Channel %d' % self._channelId)
         self.resize(400, 400)
         self.setRange(QtCore.QRectF(0, -10, 5000, 20))
-        self.setLabels(left='Voltage (mV)', bottom='time')
+        self.setLabels(left='Voltage (MV)', bottom='time')
 
         self._plot_item = self.plot()
 
