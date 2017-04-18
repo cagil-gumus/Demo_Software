@@ -71,7 +71,7 @@ class PlotWindow(QtGui.QWidget):
         super(PlotWindow, self).__init__(parent, QtCore.Qt.Window)
 
         # Set preferences for Plot Window
-        self.setWindowTitle("Nice ADC Data Plot")
+        self.setWindowTitle("Great ADC Data Plot")
         self.setGeometry(0, 0, 1000, 1000)
 
         self._checkBox_combineall = MainWindow()._checkBox_combineall
