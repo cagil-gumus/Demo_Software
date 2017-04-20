@@ -4,7 +4,6 @@ from PyQt4 import QtGui, QtCore, uic
 import sys
 import numpy as np
 import pyqtgraph as pg
-import time
 
 
 class MainWindow(QtGui.QMainWindow):
@@ -43,7 +42,7 @@ class MainWindow(QtGui.QMainWindow):
         self._plotWindow = PlotWindow(self)
 
         # Grab the information from the UI
-        channels_to_plot = self.getListOfCheckedChannels()
+        channels_to_plot = self.getlistofcheckedchannels()
         is_combine_all_checked = self.checkBox_combineall.isChecked()
 
         # If user selected any channels for display => show _plotWindow
@@ -52,7 +51,7 @@ class MainWindow(QtGui.QMainWindow):
 
         self._plotWindow.start_refreshing(is_combine_all_checked)
 
-    def getListOfCheckedChannels(self):
+    def getlistofcheckedchannels(self):
         # Returns a list of id's of currently selected checkboxes.
 
         list_of_selected_chekboxes = []
@@ -96,23 +95,27 @@ class PlotWindow(QtGui.QWidget):
             self.connect(self.timer, QtCore.SIGNAL('timeout()'), self.updateplot)
 
     def showwindow(self, list_of_channels_to_display, is_combine_all_checked):
-        self._redrawGrid(list_of_channels_to_display, is_combine_all_checked)
+        # Draw the grid first and then show the window
+
+        self._redrawgrid(list_of_channels_to_display, is_combine_all_checked)
         if is_combine_all_checked:
+            # TODO Add the missing functionality
             pass
         else:
             super(PlotWindow, self).show()
 
-    def _redrawGrid(self, list_of_channels_to_display, is_combine_all_checked):
-        self._clearGridLayout()
+    def _redrawgrid(self, list_of_channels_to_display, is_combine_all_checked):
+        self._cleargridlayout()
 
         # If user wants combined plot create only 1 Widget if not create as many as user desires
         if is_combine_all_checked:
+            # TODO Add the missing functionality
             pass
         else:
             for channel_id in list_of_channels_to_display:
                 self.gridLayout.addWidget(CustomPlotWidget(self, channel_id))
 
-    def _clearGridLayout(self):
+    def _cleargridlayout(self):
         childItem = self.gridLayout.takeAt(0)
         while (childItem != None):
             childItem.widget().deleteLater()
@@ -124,11 +127,15 @@ class PlotWindow(QtGui.QWidget):
             self.gridLayout.itemAt(index).widget().setData(self.signal_source.get_data())
 
     def updateplot_combined(self):
+        # TODO Add the missing functionality
+        # Refreshing the data for combine_all plot
         pass
 
 
 class CustomPlotWidget(pg.PlotWidget):
     def __init__(self, parent, channelId):
+        # TODO Add additional values for custom class
+
         super(CustomPlotWidget, self).__init__(parent)
         self._channelId = channelId
         self.setTitle('Channel %d' % self._channelId)
