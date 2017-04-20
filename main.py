@@ -50,7 +50,7 @@ class MainWindow(QtGui.QMainWindow):
         if len(channels_to_plot) != 0:
             self._plotWindow.showwindow(channels_to_plot, is_combine_all_checked)
 
-        self._plotWindow.start_refresing(is_combine_all_checked)
+        self._plotWindow.start_refreshing(is_combine_all_checked)
 
     def getListOfCheckedChannels(self):
         # Returns a list of id's of currently selected checkboxes.
@@ -85,7 +85,7 @@ class PlotWindow(QtGui.QWidget):
         # Get random signal from Data Generator
         self.signal_source = DataGenerator()
 
-    def start_refresing(self, is_combine_all_checked):
+    def start_refreshing(self, is_combine_all_checked):
         # Start the timer and refresh the Plot Window every 50 ms by calling updateplot method
         self.timer.start(50)  # timeout in milliseconds ... 50ms => 20 frames per second
 
@@ -125,7 +125,6 @@ class PlotWindow(QtGui.QWidget):
 
     def updateplot_combined(self):
         pass
-
 
 
 class CustomPlotWidget(pg.PlotWidget):
