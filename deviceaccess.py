@@ -32,6 +32,8 @@ Date: 24.04.2017
 
 
 import mtca4u
+import time     # Needed for delay operation
+import numpy
 
 mtca4u.set_dmap_location('dmapfile.dmap')
 boardwithmodules = mtca4u.Device('HZDR')
@@ -55,6 +57,33 @@ def readfirmwareversion():
     return boardfirmware
 
 
-def initilazeboard():
-    pass
+def clockinitilization():
+
+    boardwithmodules.write('BOARD0', 'WORD_CLK_MUX', 3, 0)
+    time.sleep(0.01)  # Wait for 10ms
+    boardwithmodules.write('BOARD0', 'WORD_CLK_MUX', 3, 1)
+    time.sleep(0.01)  # Wait for 10ms
+    boardwithmodules.write('BOARD0', 'WORD_CLK_MUX', 0, 2)
+    time.sleep(0.01)  # Wait for 10ms
+    boardwithmodules.write('BOARD0', 'WORD_CLK_MUX', 0, 3)
+    time.sleep(0.01)  # Wait for 10ms
+
+    # Resetting of the AD9510
+    # Select internal clock to be used as a source
+    boardwithmodules.write('BOARD0', 'WORD_CLK_SEL', 0)
+
+    # Set Divider Reset Pin to function as reset
+    boardwithmodules.write('BOARD0', 'AREA_SPI_DIV', int('0x00'), int('0x58'))
+    time.sleep(0.01)  # Wait for 10ms
+    boardwithmodules.write('BOARD0', 'AREA_SPI_DIV', int('0x01'), int('0x5A'))
+    time.sleep(0.01)  # Wait for 10ms
+
+    time.sleep(0.01)  # Wait for 10ms
+
+    boardwithmodules.write('BOARD0', 'WORD_CLK_RST', 1)
+    time.sleep(0.01)  # Wait for 10ms
+    boardwithmodules.write('BOARD0', 'WORD_CLK_RST', 0)
+    time.sleep(0.01)  # Wait for 10ms
+
+    # Configuration of the AD
 

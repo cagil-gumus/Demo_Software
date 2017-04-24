@@ -1,5 +1,17 @@
 #! /usr/bin/env python
 
+''' 
+
+Main code for running the UI. Main Window has been designed using QT Designer.
+Plot window is constructed within the code (.ui file does not exists) 
+
+
+Written by: Cagil Gumus 
+email: cagil.guemues@desy.de
+Date: 24.04.2017
+
+'''
+
 from PyQt4 import QtGui, QtCore, uic
 import sys
 import numpy as np
