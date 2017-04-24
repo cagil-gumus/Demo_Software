@@ -16,6 +16,7 @@ from PyQt4 import QtGui, QtCore, uic
 import sys
 import numpy as np
 import pyqtgraph as pg
+import deviceaccess
 
 
 class MainWindow(QtGui.QMainWindow):
@@ -42,13 +43,21 @@ class MainWindow(QtGui.QMainWindow):
 
         self._checkBox_combineall = self.checkBox_combineall.isChecked()
 
-        # If PushButton is clicked call the method 'button is pressed'
-        self.pushButton_startsampling.clicked.connect(self.buttonispressed)
+        # Button Connections to the methods
+        self.pushButton_readboardinfo.clicked.connect(self.boardinfobuttonispressed)
+        self.pushButton_initializeboard.clicked.connect(self.initilizebuttonispressed)
+        self.pushButton_startsampling.clicked.connect(self.samplingbuttonispressed)
 
         # Create emtpy object for instance from PlotWindow class
         self._plotWindow = None
 
-    def buttonispressed(self):
+    def boardinfobuttonispressed(self):
+        print(deviceaccess.readinternalclockfrequency())
+
+    def initilizebuttonispressed(self):
+        pass
+
+    def samplingbuttonispressed(self):
         # Create an instance of PlotWindow class
 
         self._plotWindow = PlotWindow(self)

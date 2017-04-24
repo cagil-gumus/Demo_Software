@@ -112,7 +112,7 @@ def sis_adc():
     boardwithmodules.write('BOARD0', 'AREA_ADC_ENA', 0)
     time.sleep(1)  # Wait for 1 second
     boardwithmodules.write('BOARD0', 'AREA_ADC_ENA', 1)
-    time.sleep(1)  # Wait for 1 second
+
 
 
 
