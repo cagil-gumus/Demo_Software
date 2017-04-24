@@ -38,6 +38,7 @@ import numpy
 mtca4u.set_dmap_location('dmapfile.dmap')
 boardwithmodules = mtca4u.Device('HZDR')
 
+
 def readinternalclockfrequency():
     # provides frequency of clocks
     # [0] - internal board clock
@@ -45,12 +46,14 @@ def readinternalclockfrequency():
     boardfrequency = boardwithmodules.read("BOARD0", "WORD_CLK_FREQ")
     return boardfrequency[0]
 
+
 def readexternalclockfrequency():
     # provides frequency of clocks
     # [1] - external clock
 
     boardfrequency = boardwithmodules.read("BOARD0", "WORD_CLK_FREQ")
     return boardfrequency[1]
+
 
 def readfirmwareversion():
     boardfirmware = boardwithmodules.read("BOARD0", "WORD_FIRMWARE")
@@ -62,28 +65,54 @@ def clockinitilization():
     boardwithmodules.write('BOARD0', 'WORD_CLK_MUX', 3, 0)
     time.sleep(0.01)  # Wait for 10ms
     boardwithmodules.write('BOARD0', 'WORD_CLK_MUX', 3, 1)
-    time.sleep(0.01)  # Wait for 10ms
+    time.sleep(0.01)
     boardwithmodules.write('BOARD0', 'WORD_CLK_MUX', 0, 2)
-    time.sleep(0.01)  # Wait for 10ms
+    time.sleep(0.01)
     boardwithmodules.write('BOARD0', 'WORD_CLK_MUX', 0, 3)
-    time.sleep(0.01)  # Wait for 10ms
+    time.sleep(0.01)
 
     # Resetting of the AD9510
     # Select internal clock to be used as a source
     boardwithmodules.write('BOARD0', 'WORD_CLK_SEL', 0)
 
     # Set Divider Reset Pin to function as reset
-    boardwithmodules.write('BOARD0', 'AREA_SPI_DIV', int('0x00'), int('0x58'))
-    time.sleep(0.01)  # Wait for 10ms
-    boardwithmodules.write('BOARD0', 'AREA_SPI_DIV', int('0x01'), int('0x5A'))
-    time.sleep(0.01)  # Wait for 10ms
-
-    time.sleep(0.01)  # Wait for 10ms
+    boardwithmodules.write('BOARD0', 'AREA_SPI_DIV', int(0x00), int(0x58))
+    time.sleep(0.01)
+    boardwithmodules.write('BOARD0', 'AREA_SPI_DIV', int(0x01), int(0x5A))
+    time.sleep(0.02)
 
     boardwithmodules.write('BOARD0', 'WORD_CLK_RST', 1)
-    time.sleep(0.01)  # Wait for 10ms
+    time.sleep(0.01)
     boardwithmodules.write('BOARD0', 'WORD_CLK_RST', 0)
-    time.sleep(0.01)  # Wait for 10ms
+    time.sleep(0.01)
 
-    # Configuration of the AD
+    # Configuration of the AD9510
+    boardwithmodules.write('BOARD0', 'AREA_SPI_DIV', 1, int(0x45))
+    time.sleep(0.01)
+
+
+def sis_adc():
+    #   Configure the ADC via SPI Interface
+
+    boardwithmodules.write('BOARD0', 'WORD_RESET_N', 0)
+    boardwithmodules.write('BOARD0', 'WORD_RESET_N', 1)
+    time.sleep(0.5)     # Wait for 500 ms
+
+    boardwithmodules.write('BOARD0', 'AREA_SPI_ADC', int(0x3C), int(0x00))
+    time.sleep(1)       # Wait for 1 second
+    boardwithmodules.write('BOARD0', 'AREA_SPI_ADC', int(0x01), int(0xFF))
+    time.sleep(0.5)     # Wait for 500 ms
+
+    boardwithmodules.write('BOARD0', 'AREA_SPI_ADC', int(0x41), int(0x14))
+    time.sleep(1)  # Wait for 1 second
+    boardwithmodules.write('BOARD0', 'AREA_SPI_ADC', int(0x00), int(0x0D))
+    time.sleep(1)  # Wait for 1 second
+    boardwithmodules.write('BOARD0', 'AREA_SPI_ADC', int(0x01), int(0xFF))
+
+    boardwithmodules.write('BOARD0', 'AREA_ADC_ENA', 0)
+    time.sleep(1)  # Wait for 1 second
+    boardwithmodules.write('BOARD0', 'AREA_ADC_ENA', 1)
+    time.sleep(1)  # Wait for 1 second
+
+
 
