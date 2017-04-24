@@ -249,9 +249,9 @@
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="label_adcclock">
+          <widget class="QLabel" name="label_mainclock">
            <property name="text">
-            <string>ADC Clock Frequency:</string>
+            <string>Main Clock Frequency:</string>
            </property>
           </widget>
          </item>

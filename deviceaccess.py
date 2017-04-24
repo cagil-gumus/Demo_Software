@@ -56,7 +56,7 @@ def readexternalclockfrequency():
 
 
 def readfirmwareversion():
-    boardfirmware = boardwithmodules.read("BOARD0", "WORD_FIRMWARE")
+    boardfirmware = boardwithmodules.read_raw("BOARD0", "WORD_FIRMWARE")
     return boardfirmware
 
 
@@ -116,3 +116,4 @@ def sis_adc():
 
 
 
+print(readfirmwareversion())

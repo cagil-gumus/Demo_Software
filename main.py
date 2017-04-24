@@ -52,7 +52,7 @@ class MainWindow(QtGui.QMainWindow):
         self._plotWindow = None
 
     def boardinfobuttonispressed(self):
-        print(deviceaccess.readinternalclockfrequency())
+        self.label_mainclock.setText("Main Clock Frequency: {} MHz".format(int(deviceaccess.readinternalclockfrequency())/1000000))
 
     def initilizebuttonispressed(self):
         pass
