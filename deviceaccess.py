@@ -56,6 +56,8 @@ def readexternalclockfrequency():
 
 
 def readfirmwareversion():
+    # TODO ask martin h. about difference between read and read_raw
+
     boardfirmware = boardwithmodules.read_raw("BOARD0", "WORD_FIRMWARE")
     return boardfirmware
 
