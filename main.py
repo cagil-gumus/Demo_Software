@@ -47,15 +47,43 @@ class MainWindow(QtGui.QMainWindow):
         self.pushButton_readboardinfo.clicked.connect(self.boardinfobuttonispressed)
         self.pushButton_initializeboard.clicked.connect(self.initilizebuttonispressed)
         self.pushButton_startsampling.clicked.connect(self.samplingbuttonispressed)
+        self.pushButton_resetboard.clicked.connect(self.resetbuttonispressed)
+
 
         # Create emtpy object for instance from PlotWindow class
         self._plotWindow = None
 
     def boardinfobuttonispressed(self):
-        self.label_mainclock.setText("Main Clock Frequency: {} MHz".format(int(deviceaccess.readinternalclockfrequency())/1000000))
+
+        connection_status = deviceaccess.connecttoboard()
+
+        if connection_status:
+            print('Connection Established')
+            self.label_mainclock.setText("Main Clock Frequency: {} MHz"
+                                         .format(float(deviceaccess.readinternalclockfrequency())/1000000))
+        else:
+            print('Cannot connect to DS8VM1')
 
     def initilizebuttonispressed(self):
-        pass
+
+        internalclockpreference = self.radioButton_internalclock.isChecked()
+        externalclockpreference = self.radioButton_externalclock.isChecked()
+
+        if internalclockpreference:
+            print ('Choice is made')
+            self.pushButton_initializeboard.setEnabled(False)
+            print 'Configuring the clock'
+            deviceaccess.clockinitilization()
+            deviceaccess.sis_adc()
+            print 'Configuration = Done'
+            self.pushButton_initializeboard.setEnabled(True)
+        elif externalclockpreference:
+            print ('External Clock Configuration not available')
+
+        else:
+            print ('Signal Source not selected')
+
+
 
     def samplingbuttonispressed(self):
         # Create an instance of PlotWindow class
@@ -71,6 +99,16 @@ class MainWindow(QtGui.QMainWindow):
             self._plotWindow.showwindow(channels_to_plot, is_combine_all_checked)
 
         self._plotWindow.start_refreshing(is_combine_all_checked)
+
+
+
+    def resetbuttonispressed(self):
+        # Reset the AMC
+
+        print ('Reseting AMC')
+        deviceaccess.resetboard()
+        print ('Reset Complete')
+
 
     def getlistofcheckedchannels(self):
         # Returns a list of id's of currently selected checkboxes.

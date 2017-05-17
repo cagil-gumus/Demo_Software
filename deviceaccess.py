@@ -33,16 +33,30 @@ Date: 24.04.2017
 
 import mtca4u
 import time     # Needed for delay operation
+import sys
 import numpy
 
-mtca4u.set_dmap_location('dmapfile.dmap')
-boardwithmodules = mtca4u.Device('HZDR')
+# Create empty object for the board (Later it will be overwritten by connecttoboard method)
+boardwithmodules = None
 
+def connecttoboard():
+
+    try:
+        mtca4u.set_dmap_location('/home/guemues/Demo_Software/matlab_scripts/devices.dmap')
+        global boardwithmodules
+        boardwithmodules = mtca4u.Device('HZDR')
+        return True
+
+    except: # Catch all expections
+
+        # print('Cannot connect to the board')
+        return False
 
 def readinternalclockfrequency():
     # provides frequency of clocks
     # [0] - internal board clock
 
+    global boardwithmodules
     boardfrequency = boardwithmodules.read("BOARD0", "WORD_CLK_FREQ")
     return boardfrequency[0]
 
@@ -50,20 +64,20 @@ def readinternalclockfrequency():
 def readexternalclockfrequency():
     # provides frequency of clocks
     # [1] - external clock
-
+    global boardwithmodules
     boardfrequency = boardwithmodules.read("BOARD0", "WORD_CLK_FREQ")
     return boardfrequency[1]
 
 
 def readfirmwareversion():
-    # TODO ask martin h. about difference between read and read_raw
-
+    # TODO ask about difference between read and read_raw
+    global boardwithmodules
     boardfirmware = boardwithmodules.read_raw("BOARD0", "WORD_FIRMWARE")
     return boardfirmware
 
 
 def clockinitilization():
-
+    global boardwithmodules
     boardwithmodules.write('BOARD0', 'WORD_CLK_MUX', 3, 0)
     time.sleep(0.01)  # Wait for 10ms
     boardwithmodules.write('BOARD0', 'WORD_CLK_MUX', 3, 1)
@@ -95,7 +109,7 @@ def clockinitilization():
 
 def sis_adc():
     #   Configure the ADC via SPI Interface
-
+    global boardwithmodules
     boardwithmodules.write('BOARD0', 'WORD_RESET_N', 0)
     boardwithmodules.write('BOARD0', 'WORD_RESET_N', 1)
     time.sleep(0.5)     # Wait for 500 ms
@@ -111,11 +125,13 @@ def sis_adc():
     time.sleep(1)  # Wait for 1 second
     boardwithmodules.write('BOARD0', 'AREA_SPI_ADC', int(0x01), int(0xFF))
 
-    boardwithmodules.write('BOARD0', 'AREA_ADC_ENA', 0)
+    boardwithmodules.write('BOARD0', 'WORD_ADC_ENA', 0)
     time.sleep(1)  # Wait for 1 second
-    boardwithmodules.write('BOARD0', 'AREA_ADC_ENA', 1)
+    boardwithmodules.write('BOARD0', 'WORD_ADC_ENA', 1)
 
-
-
-
-print(readfirmwareversion())
+def resetboard():
+    # Reset the board
+    global boardwithmodules
+    boardwithmodules.write('BOARD0', 'WORD_RESET_N', 0)
+    boardwithmodules.write('BOARD0', 'WORD_RESET_N', 1)
+    time.sleep(0.5)  # Wait for 500 ms
