@@ -304,6 +304,19 @@ p, li { white-space: pre-wrap; }
         </property>
         <layout class="QVBoxLayout" name="verticalLayout">
          <item>
+          <widget class="QLabel" name="label_connectionstatus">
+           <property name="font">
+            <font>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Connection Status: Board not Initialized</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QLabel" name="label_board">
            <property name="text">
             <string>Firmware:</string>
@@ -328,13 +341,6 @@ p, li { white-space: pre-wrap; }
           <widget class="QLabel" name="label_boardtemperature">
            <property name="text">
             <string>Board Temperature:</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="label_connectionstatus">
-           <property name="text">
-            <string>Connection Status:</string>
            </property>
           </widget>
          </item>

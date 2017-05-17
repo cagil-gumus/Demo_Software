@@ -63,6 +63,7 @@ class MainWindow(QtGui.QMainWindow):
                                          .format(float(deviceaccess.readinternalclockfrequency())/1000000))
         else:
             print('Cannot connect to DS8VM1')
+            self.label_connectionstatus.setText('Connection Status: Connected')
 
     def initilizebuttonispressed(self):
 
