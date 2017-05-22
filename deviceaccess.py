@@ -88,7 +88,8 @@ def clockinitilization():
     time.sleep(0.01)
 
     # Resetting of the AD9510
-    # Select internal clock to be used as a source
+    # Select internal clock to be used as a source (FPGA will use internal clock for briefly)
+    # Once configuration is complete we will switch it back to external(better) clock
     boardwithmodules.write('BOARD0', 'WORD_CLK_SEL', 0)
 
     # Set Divider Reset Pin to function as reset
@@ -184,6 +185,9 @@ def clockinitilization():
     # Wait for Clock to Stabilize
     time.sleep(3)
 
+    # Since External Clock is now stable, switch to it and start using it.
+    boardwithmodules.write('BOARD0', 'WORD_CLK_SEL', 1)
+
 
 def configureadcs():
     #   Configure the ADC via SPI Interface
@@ -207,8 +211,26 @@ def configureadcs():
     time.sleep(1)  # Wait for 1 second
     boardwithmodules.write('BOARD0', 'WORD_ADC_ENA', 1)
     
+def configuretiming():
+    # Configure trigger freq and DAQ
+    global boardwithmodules
 
+    # Set internal trigger freq for 10Hz (app_clk/(value+1)
+    boardwithmodules.write('APP0', 'WORD_TIMING_FREQ', 6250000-1, 0)
+    # Set Clock Divider for DAQ1 (app_clk/(value+1)
+    boardwithmodules.write('APP0', 'WORD_TIMING_FREQ', 0, 7)
+    # Select MAIN trigger line (available 8 lines)
+    boardwithmodules.write('APP0', 'WORD_TIMING_TRG_SEL', 0)
+    # enable internal triggers, bit0 - main trigger sleected FREQ[0] , bit7 - DAQ1 strobe enabled
+    boardwithmodules.write('APP0', 'WORD_TIMING_INT_ENA', int(0x81))
 
+    # Enable DAQ1 Application part
+    # bit[0]  DAQ0 - controller
+    # bit[1]  DAQ1 - field detection, IQ/AP/RAW
+    boardwithmodules.write('APP0', 'WORD_DAQ_ENABLE', 2)
+    boardwithmodules.write('APP0', 'WORD_DAQ_MUX', 0, 0)
+    # Select for DAQ1 RAW ADC Data
+    boardwithmodules.write('APP0', 'WORD_DAQ_MUX', 2, 1)
 
 def resetboard():
     # Reset the board

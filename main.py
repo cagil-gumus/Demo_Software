@@ -50,8 +50,7 @@ class MainWindow(QtGui.QMainWindow):
         self.pushButton_resetboard.clicked.connect(self.resetbuttonispressed)
         self.pushButton_pllconfig.clicked.connect(self.pllconfiguration)
 
-
-        # Create emtpy object for instance from PlotWindow class
+        #  Create emtpy object for instance from PlotWindow class
         self._plotWindow = None
 
     def boardinfobuttonispressed(self):
@@ -74,18 +73,20 @@ class MainWindow(QtGui.QMainWindow):
         if internalclockpreference:
             print ('Choice is made')
             self.pushButton_initializeboard.setEnabled(False)
-            print 'Configuring the clock'
+            print ('Initializing the clock')
             deviceaccess.clockinitilization()
+            print ('Configuring the ADCs of AMC')
             deviceaccess.configureadcs()
+            print ('Configure the Timing')
+            deviceaccess.configuretiming()
             print 'Configuration = Done'
             self.pushButton_initializeboard.setEnabled(True)
+
         elif externalclockpreference:
             print ('External Clock Configuration not available')
 
         else:
             print ('Signal Source not selected')
-
-
 
     def samplingbuttonispressed(self):
         # Create an instance of PlotWindow class
@@ -104,7 +105,6 @@ class MainWindow(QtGui.QMainWindow):
 
     def resetbuttonispressed(self):
         # Reset the AMC
-
         print ('Reseting AMC')
         deviceaccess.resetboard()
         print ('Reset Complete')
