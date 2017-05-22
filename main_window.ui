@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>710</width>
-    <height>622</height>
+    <width>945</width>
+    <height>491</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -39,7 +39,7 @@
        <string/>
       </property>
       <property name="pixmap">
-       <pixmap>../Desktop/unnamed.png</pixmap>
+       <pixmap>../.designer/Desktop/unnamed.png</pixmap>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
@@ -80,6 +80,12 @@ p, li { white-space: pre-wrap; }
      <layout class="QGridLayout" name="gridLayout_StartSampling">
       <item row="0" column="0">
        <widget class="QFrame" name="frame">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="frameShape">
          <enum>QFrame::StyledPanel</enum>
         </property>
@@ -399,7 +405,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>710</width>
+     <width>945</width>
      <height>19</height>
     </rect>
    </property>

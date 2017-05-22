@@ -23,7 +23,7 @@ class MainWindow(QtGui.QMainWindow):
 
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
-        uic.loadUi('main_window.ui', self)
+        uic.loadUi('main_window(with tabs).ui', self)
         self.setWindowTitle("SIS8300-L2 Demo")
 
         #   Setting up App Icon on Task Bar
@@ -48,6 +48,7 @@ class MainWindow(QtGui.QMainWindow):
         self.pushButton_initializeboard.clicked.connect(self.initilizebuttonispressed)
         self.pushButton_startsampling.clicked.connect(self.samplingbuttonispressed)
         self.pushButton_resetboard.clicked.connect(self.resetbuttonispressed)
+        self.pushButton_pllconfig.clicked.connect(self.pllconfiguration)
 
 
         # Create emtpy object for instance from PlotWindow class
@@ -75,7 +76,7 @@ class MainWindow(QtGui.QMainWindow):
             self.pushButton_initializeboard.setEnabled(False)
             print 'Configuring the clock'
             deviceaccess.clockinitilization()
-            deviceaccess.sis_adc()
+            deviceaccess.configureadcs()
             print 'Configuration = Done'
             self.pushButton_initializeboard.setEnabled(True)
         elif externalclockpreference:
@@ -101,14 +102,21 @@ class MainWindow(QtGui.QMainWindow):
 
         self._plotWindow.start_refreshing(is_combine_all_checked)
 
-
-
     def resetbuttonispressed(self):
         # Reset the AMC
 
         print ('Reseting AMC')
         deviceaccess.resetboard()
         print ('Reset Complete')
+
+    def pllconfiguration(self):
+
+        self.fileDialog = QtGui.QFileDialog.getOpenFileName(self)
+        if self.fileDialog:
+            print self.fileDialog
+
+        # self.fileDialog = QtGui.QFileDialog(self)
+        # self.fileDialog.show()
 
 
     def getlistofcheckedchannels(self):
