@@ -3,26 +3,6 @@
 This python code contains the useful functions for communicating with the board via PCIe 
 using mtca4u module 
 
-read(moduleName                 ===> The name of the device module to which the register belongs to. 
-                                    If the register is not contained in a module, then provide an 
-                                    empty string as the parameter value
-                    
-    registerName                ===> The name of the register to read from.
-    
-    numberOfElementsToRead=0    ===> (int, optional) Specifies the number of register elements 
-                                    that should be read out. The width and fixed point representation 
-                                    of the register element are internally obtained from the map file.
-                                
-    elementIndexInRegister=0)   ===> (int, optional)  This is a zero indexed offset from the first element 
-                                    of the register. When an elementIndexInRegister parameter is specified, 
-                                    the method reads out elements starting from this element index. 
-                                    The elemnt at the index position is included in the read as well.
-                                    
-read_dma_raw(moduleName, DMARegisterName, numberOfElementsToRead=0, elementIndexInRegister=0)[source]
-
-For more information about ChimeraTK please visit: 
-https://chimeratk.github.io/DeviceAccess-PythonBindings/master/mtca4u.html#mtca4u.Device.read
-
 Written by: Cagil Gumus 
 email: cagil.guemues@desy.de
 Date: 24.04.2017
@@ -41,9 +21,10 @@ boardwithmodules = None
 
 
 def connecttoboard(slotnumber):
+    #TODO When you are connecting to board make sure the right firmware is there otherwise throw error
 
     try:
-        mtca4u.set_dmap_location('/home/guemues/Demo_Software/matlab_scripts/devices.dmap')
+        mtca4u.set_dmap_location('devices.dmap')
         global boardwithmodules
         boardwithmodules = mtca4u.Device('Slot{}'.format(slotnumber))
         return True
@@ -212,7 +193,8 @@ def configureadcs():
     boardwithmodules.write('BOARD0', 'WORD_ADC_ENA', 0)
     time.sleep(1)  # Wait for 1 second
     boardwithmodules.write('BOARD0', 'WORD_ADC_ENA', 1)
-    
+
+
 def configuretiming():
     # Configure trigger freq and DAQ
     global boardwithmodules
@@ -233,6 +215,7 @@ def configuretiming():
     boardwithmodules.write('APP0', 'WORD_DAQ_MUX', 0, 0)
     # Select for DAQ1 RAW ADC Data
     boardwithmodules.write('APP0', 'WORD_DAQ_MUX', 2, 1)
+
 
 def resetboard():
     # Reset the board

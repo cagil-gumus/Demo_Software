@@ -75,14 +75,23 @@ class MainWindow(QtGui.QMainWindow):
 
         if internalclockpreference:
             print ('Starting Configuration')
+
             self.pushButton_initializeboard.setEnabled(False)
+
             print ('Initializing the clock')
             deviceaccess.clockinitilization()
+            self.progressBar.setValue(40)
+
             print ('Configuring the ADCs of AMC')
             deviceaccess.configureadcs()
+            self.progressBar.setValue(80)
+
             print ('Configure the Timing')
             deviceaccess.configuretiming()
+            self.progressBar.setValue(100)
+
             print 'Configuration = Done'
+
             self.pushButton_initializeboard.setEnabled(True)
 
         elif externalclockpreference:
@@ -105,8 +114,7 @@ class MainWindow(QtGui.QMainWindow):
             self._plotWindow.showwindow(channels_to_plot, is_combine_all_checked)
 
         # Start Refresing the data on _plotWindow
-        self._plotWindow.start_refreshing(is_combine_all_checked)
-
+        self._plotWindow.start_refreshing(is_combine_all_checked, FPS=self.FPS.value())
 
     def resetbuttonispressed(self):
         # Reset the AMC
@@ -123,7 +131,6 @@ class MainWindow(QtGui.QMainWindow):
         # self.fileDialog = QtGui.QFileDialog(self)
         # self.fileDialog.show()
 
-
     def getlistofcheckedchannels(self):
         # Returns a list of id's of currently selected checkboxes.
 
@@ -136,7 +143,6 @@ class MainWindow(QtGui.QMainWindow):
                 list_of_selected_chekboxes.append(channel_id)
 
         return list_of_selected_chekboxes
-
 
     def getslotselection(self):
 
@@ -154,6 +160,8 @@ class PlotWindow(QtGui.QWidget):
 
         self._checkBox_combineall = MainWindow()._checkBox_combineall
 
+
+
         # Construct the Grid Layout
         self.gridLayout = QtGui.QGridLayout(self)
 
@@ -163,9 +171,10 @@ class PlotWindow(QtGui.QWidget):
         # Get random signal from Data Generator
         self.signal_source = DataGenerator()
 
-    def start_refreshing(self, is_combine_all_checked):
+    def start_refreshing(self, is_combine_all_checked,FPS):
         # Start the timer and refresh the Plot Window every 50 ms by calling updateplot method
-        self.timer.start(50)  # timeout in milliseconds ... 50ms => 20 frames per second
+
+        self.timer.start(1000/FPS)  # timeout in milliseconds ... 50ms => 20 frames per second
 
         # If user has selected All in one plot => use different methods to refresh data
         if is_combine_all_checked:
@@ -209,8 +218,6 @@ class PlotWindow(QtGui.QWidget):
         self.channel_5_data, self.channel_6_data, self.channel_7_data, self.channel_8_data,\
             = deviceaccess.readdma(buffer_size=100)
 
-
-
         self.gridLayout.itemAt(0).widget().setData(self.channel_1_data)
         self.gridLayout.itemAt(1).widget().setData(self.channel_2_data)
         self.gridLayout.itemAt(2).widget().setData(self.channel_3_data)
@@ -219,7 +226,6 @@ class PlotWindow(QtGui.QWidget):
         self.gridLayout.itemAt(5).widget().setData(self.channel_6_data)
         self.gridLayout.itemAt(6).widget().setData(self.channel_7_data)
         self.gridLayout.itemAt(7).widget().setData(self.channel_8_data)
-
 
     def updateplot_combined(self):
         # TODO Add the missing functionality
