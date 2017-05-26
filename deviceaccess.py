@@ -32,18 +32,20 @@ Date: 24.04.2017
 import mtca4u
 import time     # Needed for delay operation
 import sys
-import numpy
+import numpy as np
+import pyqtgraph as pg
+
 
 # Create empty object for the board (Later it will be overwritten by connecttoboard method)
 boardwithmodules = None
 
 
-def connecttoboard():
+def connecttoboard(slotnumber):
 
     try:
         mtca4u.set_dmap_location('/home/guemues/Demo_Software/matlab_scripts/devices.dmap')
         global boardwithmodules
-        boardwithmodules = mtca4u.Device('HZDR')
+        boardwithmodules = mtca4u.Device('Slot{}'.format(slotnumber))
         return True
 
     except:     # Catch all expections
@@ -238,4 +240,24 @@ def resetboard():
     boardwithmodules.write('BOARD0', 'WORD_RESET_N', 0)
     boardwithmodules.write('BOARD0', 'WORD_RESET_N', 1)
     time.sleep(0.5)     # Wait for 500 ms
+
+
+def readdma(buffer_size):
+    # Read the DMA Area
+    global boardwithmodules
+
+    data = boardwithmodules.read_sequences('BOARD0', 'DMA_SECONDARY')
+
+    channel_1_data = data[:buffer_size, 0]
+    channel_2_data = data[:buffer_size, 1]
+    channel_3_data = data[:buffer_size, 2]
+    channel_4_data = data[:buffer_size, 3]
+    channel_5_data = data[:buffer_size, 4]
+    channel_6_data = data[:buffer_size, 5]
+    channel_7_data = data[:buffer_size, 6]
+    channel_8_data = data[:buffer_size, 7]
+
+    return channel_1_data, channel_2_data, channel_3_data, channel_4_data, channel_5_data,\
+           channel_6_data, channel_7_data, channel_8_data
+
 

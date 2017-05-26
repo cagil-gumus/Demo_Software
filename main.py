@@ -23,8 +23,8 @@ class MainWindow(QtGui.QMainWindow):
 
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
-        uic.loadUi('main_window(with tabs).ui', self)
-        self.setWindowTitle("SIS8300-L2 Demo")
+        uic.loadUi('Demo_GUI.ui', self)
+        self.setWindowTitle("DS8VM1 Demo")
 
         #   Setting up App Icon on Task Bar
         self.app_icon = QtGui.QIcon()
@@ -44,7 +44,7 @@ class MainWindow(QtGui.QMainWindow):
         self._checkBox_combineall = self.checkBox_combineall.isChecked()
 
         # Button Connections to the methods
-        self.pushButton_readboardinfo.clicked.connect(self.boardinfobuttonispressed)
+        self.pushButton_connecttoboard.clicked.connect(self.connecttoboardispressed)
         self.pushButton_initializeboard.clicked.connect(self.initilizebuttonispressed)
         self.pushButton_startsampling.clicked.connect(self.samplingbuttonispressed)
         self.pushButton_resetboard.clicked.connect(self.resetbuttonispressed)
@@ -53,17 +53,20 @@ class MainWindow(QtGui.QMainWindow):
         #  Create emtpy object for instance from PlotWindow class
         self._plotWindow = None
 
-    def boardinfobuttonispressed(self):
+    def connecttoboardispressed(self):
 
-        connection_status = deviceaccess.connecttoboard()
+        slotnumber = self.getslotselection()
+
+        connection_status = deviceaccess.connecttoboard(slotnumber)
 
         if connection_status:
             print('Connection Established')
             self.label_mainclock.setText("Main Clock Frequency: {} MHz"
                                          .format(float(deviceaccess.readinternalclockfrequency())/1000000))
+            self.label_connectionstatus.setText('Connection Status: Connected')
         else:
             print('Cannot connect to DS8VM1')
-            self.label_connectionstatus.setText('Connection Status: Connected')
+            self.label_connectionstatus.setText('Connection Status: Failed')
 
     def initilizebuttonispressed(self):
 
@@ -71,7 +74,7 @@ class MainWindow(QtGui.QMainWindow):
         externalclockpreference = self.radioButton_externalclock.isChecked()
 
         if internalclockpreference:
-            print ('Choice is made')
+            print ('Starting Configuration')
             self.pushButton_initializeboard.setEnabled(False)
             print ('Initializing the clock')
             deviceaccess.clockinitilization()
@@ -101,7 +104,9 @@ class MainWindow(QtGui.QMainWindow):
         if len(channels_to_plot) != 0:
             self._plotWindow.showwindow(channels_to_plot, is_combine_all_checked)
 
+        # Start Refresing the data on _plotWindow
         self._plotWindow.start_refreshing(is_combine_all_checked)
+
 
     def resetbuttonispressed(self):
         # Reset the AMC
@@ -131,6 +136,12 @@ class MainWindow(QtGui.QMainWindow):
                 list_of_selected_chekboxes.append(channel_id)
 
         return list_of_selected_chekboxes
+
+
+    def getslotselection(self):
+
+        self.slotselection = self.comboBox_slotnumber.currentText()
+        return int(self.slotselection)
 
 
 class PlotWindow(QtGui.QWidget):
@@ -194,6 +205,22 @@ class PlotWindow(QtGui.QWidget):
         for index in range(0, self.gridLayout.count()):
             self.gridLayout.itemAt(index).widget().setData(self.signal_source.get_data())
 
+        self.channel_1_data, self.channel_2_data, self.channel_3_data, self.channel_4_data, \
+        self.channel_5_data, self.channel_6_data, self.channel_7_data, self.channel_8_data,\
+            = deviceaccess.readdma(buffer_size=100)
+
+
+
+        self.gridLayout.itemAt(0).widget().setData(self.channel_1_data)
+        self.gridLayout.itemAt(1).widget().setData(self.channel_2_data)
+        self.gridLayout.itemAt(2).widget().setData(self.channel_3_data)
+        self.gridLayout.itemAt(3).widget().setData(self.channel_4_data)
+        self.gridLayout.itemAt(4).widget().setData(self.channel_5_data)
+        self.gridLayout.itemAt(5).widget().setData(self.channel_6_data)
+        self.gridLayout.itemAt(6).widget().setData(self.channel_7_data)
+        self.gridLayout.itemAt(7).widget().setData(self.channel_8_data)
+
+
     def updateplot_combined(self):
         # TODO Add the missing functionality
         # Refreshing the data for combine_all plot
@@ -207,8 +234,8 @@ class CustomPlotWidget(pg.PlotWidget):
         super(CustomPlotWidget, self).__init__(parent)
         self._channelId = channelId
         self.setTitle('Channel %d' % self._channelId)
-        self.resize(400, 400)
-        self.setRange(QtCore.QRectF(0, -10, 5000, 20))
+        # self.resize(400, 400)
+        # self.setRange(QtCore.QRectF(0, -10, 5000, 20))
         self.setLabels(left='Voltage (MV)', bottom='time')
 
         self._plot_item = self.plot()
