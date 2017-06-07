@@ -17,6 +17,7 @@ import sys
 import numpy as np
 import pyqtgraph as pg
 import deviceaccess
+import re
 
 
 class MainWindow(QtGui.QMainWindow):
@@ -51,7 +52,7 @@ class MainWindow(QtGui.QMainWindow):
         self.pushButton_pllconfig.clicked.connect(self.pllconfiguration)
 
         #  Create emtpy object for instance from PlotWindow class
-        self._plotWindow = None
+        self._plotWindow = PlotWindow(self)
 
     def connecttoboardispressed(self):
 
@@ -101,9 +102,6 @@ class MainWindow(QtGui.QMainWindow):
             print ('Signal Source not selected')
 
     def samplingbuttonispressed(self):
-        # Create an instance of PlotWindow class
-
-        self._plotWindow = PlotWindow(self)
 
         # Grab the information from the UI
         channels_to_plot = self.getlistofcheckedchannels()
@@ -114,7 +112,10 @@ class MainWindow(QtGui.QMainWindow):
             self._plotWindow.showwindow(channels_to_plot, is_combine_all_checked)
 
         # Start Refresing the data on _plotWindow
-        self._plotWindow.start_refreshing(is_combine_all_checked, FPS=self.FPS.value())
+        print (self.getlistofcheckedchannels())
+
+        self._plotWindow.start_refreshing(is_combine_all_checked=is_combine_all_checked, FPS=self.FPS.value(),
+                                          channels_to_plot=self.getlistofcheckedchannels())
 
     def resetbuttonispressed(self):
         # Reset the AMC
@@ -124,12 +125,37 @@ class MainWindow(QtGui.QMainWindow):
 
     def pllconfiguration(self):
 
+        registers = []
+
+        # Show user the Dialog to select the file
         self.fileDialog = QtGui.QFileDialog.getOpenFileName(self)
+
         if self.fileDialog:
             print self.fileDialog
+            self.label_codeloader_status.setText('File Location: {}'.format(self.fileDialog))
+        else:
+            self.label_codeloader_status.setText('File Location: Error')
 
-        # self.fileDialog = QtGui.QFileDialog(self)
-        # self.fileDialog.show()
+        try:  # Try to open the file
+            pll_file = open(self.fileDialog)
+
+        except IOError: # If something happens throw error message
+            print ('Could not read the file')
+
+        pll_data = pll_file.readlines()
+
+        try:
+            for line in pll_data:
+                register_string = line.strip().split()  # get rid of OS dependency
+                registers.append(hex(int(register_string[-1], 16)))  # Convert the string to hex(string)
+
+        except:
+            print ('Contents of file is wrong')
+
+        # Send the register values to FPGA
+        deviceaccess.configurepll(registers)
+
+        print 'PLL Configuration Completed'
 
     def getlistofcheckedchannels(self):
         # Returns a list of id's of currently selected checkboxes.
@@ -155,12 +181,10 @@ class PlotWindow(QtGui.QWidget):
         super(PlotWindow, self).__init__(parent, QtCore.Qt.Window)
 
         # Set preferences for Plot Window
-        self.setWindowTitle("Super Great ADC Data Plot")
+        self.setWindowTitle("ADC Data Plot")
         self.setGeometry(0, 0, 1000, 1000)
 
-        self._checkBox_combineall = MainWindow()._checkBox_combineall
-
-
+        self._checkBox_combineall = parent._checkBox_combineall
 
         # Construct the Grid Layout
         self.gridLayout = QtGui.QGridLayout(self)
@@ -171,7 +195,11 @@ class PlotWindow(QtGui.QWidget):
         # Get random signal from Data Generator
         self.signal_source = DataGenerator()
 
-    def start_refreshing(self, is_combine_all_checked,FPS):
+        self._list_of_channels_to_display = []
+
+    def start_refreshing(self, is_combine_all_checked, FPS, channels_to_plot):
+
+        self._list_of_channels_to_display = channels_to_plot
         # Start the timer and refresh the Plot Window every 50 ms by calling updateplot method
 
         self.timer.start(1000/FPS)  # timeout in milliseconds ... 50ms => 20 frames per second
@@ -180,7 +208,8 @@ class PlotWindow(QtGui.QWidget):
         if is_combine_all_checked:
             self.connect(self.timer, QtCore.SIGNAL('timeout()'), self.updateplot_combined)
         else:
-            self.connect(self.timer, QtCore.SIGNAL('timeout()'), self.updateplot)
+            self.connect(self.timer, QtCore.SIGNAL('timeout()'),
+                         self.updateplot)
 
     def showwindow(self, list_of_channels_to_display, is_combine_all_checked):
         # Draw the grid first and then show the window
@@ -211,21 +240,19 @@ class PlotWindow(QtGui.QWidget):
 
     def updateplot(self):
 
-        for index in range(0, self.gridLayout.count()):
-            self.gridLayout.itemAt(index).widget().setData(self.signal_source.get_data())
+        list_of_channels_to_display = self._list_of_channels_to_display
 
-        self.channel_1_data, self.channel_2_data, self.channel_3_data, self.channel_4_data, \
-        self.channel_5_data, self.channel_6_data, self.channel_7_data, self.channel_8_data,\
-            = deviceaccess.readdma(buffer_size=100)
+        channel_1_data, channel_2_data, channel_3_data, channel_4_data, \
+        channel_5_data, channel_6_data, channel_7_data, channel_8_data = deviceaccess.readdma(buffer_size=100)
 
-        self.gridLayout.itemAt(0).widget().setData(self.channel_1_data)
-        self.gridLayout.itemAt(1).widget().setData(self.channel_2_data)
-        self.gridLayout.itemAt(2).widget().setData(self.channel_3_data)
-        self.gridLayout.itemAt(3).widget().setData(self.channel_4_data)
-        self.gridLayout.itemAt(4).widget().setData(self.channel_5_data)
-        self.gridLayout.itemAt(5).widget().setData(self.channel_6_data)
-        self.gridLayout.itemAt(6).widget().setData(self.channel_7_data)
-        self.gridLayout.itemAt(7).widget().setData(self.channel_8_data)
+        channels = [channel_1_data, channel_2_data, channel_3_data, channel_4_data,
+                    channel_5_data, channel_6_data, channel_7_data, channel_8_data]
+
+
+        for index in range(self.gridLayout.count()):
+            self.gridLayout.itemAt(index).widget().setData(channels[list_of_channels_to_display[index]-1])
+
+        # self.gridLayout.itemAt(0).widget().setData(channels[list_of_channels_to_display[0] - 1])
 
     def updateplot_combined(self):
         # TODO Add the missing functionality

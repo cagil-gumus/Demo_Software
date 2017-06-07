@@ -60,6 +60,8 @@ def readfirmwareversion():
 
 
 def clockinitilization():
+    # Configure the Muxes
+
     global boardwithmodules
     boardwithmodules.write('BOARD0', 'WORD_CLK_MUX', 3, 0)  # Mux 1A (Choose Quartz)
     time.sleep(0.01)  # Wait for 10ms
@@ -174,6 +176,7 @@ def clockinitilization():
 
 def configureadcs():
     #   Configure the ADC via SPI Interface
+
     global boardwithmodules
     boardwithmodules.write('BOARD0', 'WORD_RESET_N', 0)
     boardwithmodules.write('BOARD0', 'WORD_RESET_N', 1)
@@ -197,6 +200,7 @@ def configureadcs():
 
 def configuretiming():
     # Configure trigger freq and DAQ
+
     global boardwithmodules
 
     # Set internal trigger freq for 10Hz (app_clk/(value+1)
@@ -216,9 +220,21 @@ def configuretiming():
     # Select for DAQ1 RAW ADC Data
     boardwithmodules.write('APP0', 'WORD_DAQ_MUX', 2, 1)
 
+    '''
+     Super Important Step (ADC Clock Phase Adjustment):
+     There is a mux in front of dual ADCs that provide additional phase change. This is used when DMA region is not
+     properly assigned. (When DMA region shows => Ch1 + Ch0 + Ch3 + Ch4 + Ch6 + Ch5 + Ch7 + Ch8
+                         use WORD_ADC_REVERT_CLK = 0x1F (b'11111) to fix it
+     Default value for WORD_ADC_REVERT_CLK = 0x18
+
+     '''
+    # ADC Clock Phase Adjustment
+    boardwithmodules.write('BOARD0', 'WORD_ADC_REVERT_CLK', int(0x1F))
+
 
 def resetboard():
     # Reset the board
+
     global boardwithmodules
     boardwithmodules.write('BOARD0', 'WORD_RESET_N', 0)
     boardwithmodules.write('BOARD0', 'WORD_RESET_N', 1)
@@ -240,7 +256,28 @@ def readdma(buffer_size):
     channel_7_data = data[:buffer_size, 6]
     channel_8_data = data[:buffer_size, 7]
 
-    return channel_1_data, channel_2_data, channel_3_data, channel_4_data, channel_5_data,\
-           channel_6_data, channel_7_data, channel_8_data
+    channels = [channel_1_data,
+                channel_2_data,
+                channel_3_data,
+                channel_4_data,
+                channel_5_data,
+                channel_6_data,
+                channel_7_data,
+                channel_8_data]
+
+    return channel_1_data, channel_2_data, channel_3_data, channel_4_data,\
+           channel_5_data, channel_6_data, channel_7_data, channel_8_data
+
+
+def configurepll(registers):
+    # Configure the PLL inside RTM
+
+    pass
+
+    # global boardwithmodules
+    #
+    # for index in len(registers):
+    #     boardwithmodules.write('BOARD0', 'WORD_PLL_DATA', int(registers[index]))
+    #     time.sleep(1)  # Wait for 1 second
 
 

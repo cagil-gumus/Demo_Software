@@ -29,7 +29,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>DS8VM1 Demo</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QTabWidget" name="MainTab">
@@ -79,7 +79,7 @@
      </palette>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>2</number>
     </property>
     <widget class="QWidget" name="BoardSetup">
      <attribute name="icon">
@@ -473,8 +473,15 @@
         <string>RTM PLL Configuration</string>
        </property>
        <layout class="QGridLayout" name="gridLayout_2">
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_codeloader_status">
+          <property name="text">
+           <string>CodeLoader File: Null</string>
+          </property>
+         </widget>
+        </item>
         <item row="0" column="0">
-         <widget class="QLabel" name="label_5">
+         <widget class="QLabel" name="label_pll_status">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -486,17 +493,10 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="label_3">
-          <property name="text">
-           <string>CodeLoader File: Null</string>
-          </property>
-         </widget>
-        </item>
         <item row="2" column="0">
          <widget class="QPushButton" name="pushButton_pllconfig">
           <property name="text">
-           <string>Select PLL Config File (CodeLoader)</string>
+           <string>Select Codeloader File and Configure </string>
           </property>
          </widget>
         </item>
