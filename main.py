@@ -43,6 +43,7 @@ class MainWindow(QtGui.QMainWindow):
                                             self.checkBox_channel8]
 
         self._checkBox_combineall = self.checkBox_combineall.isChecked()
+        self._console = self.textBrowser_console
 
         # Button Connections to the methods
         self.pushButton_connecttoboard.clicked.connect(self.connecttoboardispressed)
@@ -61,7 +62,7 @@ class MainWindow(QtGui.QMainWindow):
         connection_status = deviceaccess.connecttoboard(slotnumber)
 
         if connection_status:
-            print('Connection Established')
+            self.textBrowser_console.append('Connection Established')
             self.label_mainclock.setText("Main Clock Frequency: {} MHz"
                                          .format(float(deviceaccess.readinternalclockfrequency())/1000000))
             self.label_connectionstatus.setText('Connection Status: Connected')
@@ -75,28 +76,28 @@ class MainWindow(QtGui.QMainWindow):
         externalclockpreference = self.radioButton_externalclock.isChecked()
 
         if internalclockpreference:
-            print ('Starting Configuration')
+            self.textBrowser_console.append('Starting Configuration')
 
             self.pushButton_initializeboard.setEnabled(False)
 
-            print ('Initializing the clock')
+            self.textBrowser_console.append('Initializing the clock')
             deviceaccess.clockinitilization()
             self.progressBar.setValue(40)
 
-            print ('Configuring the ADCs of AMC')
+            self.textBrowser_console.append('Configuring the ADCs of AMC')
             deviceaccess.configureadcs()
             self.progressBar.setValue(80)
 
-            print ('Configure the Timing')
+            self.textBrowser_console.append('Configure the Timing')
             deviceaccess.configuretiming()
             self.progressBar.setValue(100)
 
-            print 'Configuration = Done'
+            self.textBrowser_console.append('Timing Configuration Completed')
 
             self.pushButton_initializeboard.setEnabled(True)
 
         elif externalclockpreference:
-            print ('External Clock Configuration not available')
+            self.textBrowser_console.append('External Clock Configuration not available')
 
         else:
             print ('Signal Source not selected')
@@ -112,18 +113,22 @@ class MainWindow(QtGui.QMainWindow):
             self._plotWindow.showwindow(channels_to_plot, is_combine_all_checked)
 
         # Start Refresing the data on _plotWindow
-        print (self.getlistofcheckedchannels())
-
         self._plotWindow.start_refreshing(is_combine_all_checked=is_combine_all_checked, FPS=self.FPS.value(),
                                           channels_to_plot=self.getlistofcheckedchannels())
 
+        self.textBrowser_console.append('Sampling Started')
+
     def resetbuttonispressed(self):
         # Reset the AMC
-        print ('Reseting AMC')
-        deviceaccess.resetboard()
-        print ('Reset Complete')
+        self.textBrowser_console.append('Reseting the AMC')
+        # deviceaccess.resetboard()
+        self.textBrowser_console.append('Reset Completed')
+
+
 
     def pllconfiguration(self):
+        # Grabs the txt file from user, parses it, grabs the values for registers
+        # Sends it to FPGA ( FPGA uses I2C to configure the PLL of DS8VM1)
 
         registers = []
 
@@ -131,31 +136,32 @@ class MainWindow(QtGui.QMainWindow):
         self.fileDialog = QtGui.QFileDialog.getOpenFileName(self)
 
         if self.fileDialog:
-            print self.fileDialog
+            self.textBrowser_console.append('Codeloader File Location: {}'.format(self.fileDialog))
             self.label_codeloader_status.setText('File Location: {}'.format(self.fileDialog))
         else:
             self.label_codeloader_status.setText('File Location: Error')
+            self.textBrowser_console.append('Cannot find the file location')
 
         try:  # Try to open the file
             pll_file = open(self.fileDialog)
 
         except IOError: # If something happens throw error message
-            print ('Could not read the file')
+            self.label_codeloader_status.setText('Cannot read the file')
 
         pll_data = pll_file.readlines()
 
         try:
             for line in pll_data:
                 register_string = line.strip().split()  # get rid of OS dependency
-                registers.append(hex(int(register_string[-1], 16)))  # Convert the string to hex(string)
+                registers.append(int(register_string[-1], 16))  # Convert to int
 
         except:
-            print ('Contents of file is wrong')
+            self.textBrowser_console.append('PLL Configuration File Error')
 
         # Send the register values to FPGA
         deviceaccess.configurepll(registers)
 
-        print 'PLL Configuration Completed'
+        self.textBrowser_console.append('PLL Configuration Completed')
 
     def getlistofcheckedchannels(self):
         # Returns a list of id's of currently selected checkboxes.
@@ -186,6 +192,8 @@ class PlotWindow(QtGui.QWidget):
 
         self._checkBox_combineall = parent._checkBox_combineall
 
+        self.console = parent._console
+
         # Construct the Grid Layout
         self.gridLayout = QtGui.QGridLayout(self)
 
@@ -208,8 +216,9 @@ class PlotWindow(QtGui.QWidget):
         if is_combine_all_checked:
             self.connect(self.timer, QtCore.SIGNAL('timeout()'), self.updateplot_combined)
         else:
-            self.connect(self.timer, QtCore.SIGNAL('timeout()'),
-                         self.updateplot)
+            self.connect(self.timer, QtCore.SIGNAL('timeout()'), self.updateplot)
+
+        self.console.append('Sampling Started')
 
     def showwindow(self, list_of_channels_to_display, is_combine_all_checked):
         # Draw the grid first and then show the window
@@ -248,21 +257,26 @@ class PlotWindow(QtGui.QWidget):
         channels = [channel_1_data, channel_2_data, channel_3_data, channel_4_data,
                     channel_5_data, channel_6_data, channel_7_data, channel_8_data]
 
-
         for index in range(self.gridLayout.count()):
             self.gridLayout.itemAt(index).widget().setData(channels[list_of_channels_to_display[index]-1])
-
-        # self.gridLayout.itemAt(0).widget().setData(channels[list_of_channels_to_display[0] - 1])
 
     def updateplot_combined(self):
         # TODO Add the missing functionality
         # Refreshing the data for combine_all plot
         pass
 
+    def closeEvent(self, QCloseEvent):
+        # When user closes the PlotWindow stop the timer (disconnect from updateplot method)
+        self.timer.stop()
+        self.console.append('Sampling Ended')
 
 class CustomPlotWidget(pg.PlotWidget):
     def __init__(self, parent, channelId):
         # TODO Add additional values for custom class
+        # pg.setConfigOption('background', 'w')
+        # pg.setConfigOption('foreground', 'k')
+
+        # pen = pg.mkPen('y', width=3, style=QtCore.Qt.DashLine)
 
         super(CustomPlotWidget, self).__init__(parent)
         self._channelId = channelId
@@ -270,8 +284,8 @@ class CustomPlotWidget(pg.PlotWidget):
         # self.resize(400, 400)
         # self.setRange(QtCore.QRectF(0, -10, 5000, 20))
         self.setLabels(left='Voltage (MV)', bottom='time')
-
         self._plot_item = self.plot()
+
 
     def setData(self, signal):
         self._plot_item.setData(signal)
