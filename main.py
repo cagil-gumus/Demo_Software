@@ -198,7 +198,8 @@ class PlotWindow(QtGui.QWidget):
         self.gridLayout = QtGui.QGridLayout(self)
 
         # Create Timer for refreshing the window
-        self.timer = QtCore.QTimer()
+        self.timer1 = QtCore.QTimer()
+        self.timer2 = QtCore.QTimer()
 
         # Get random signal from Data Generator
         self.signal_source = DataGenerator()
@@ -210,13 +211,13 @@ class PlotWindow(QtGui.QWidget):
         self._list_of_channels_to_display = channels_to_plot
         # Start the timer and refresh the Plot Window every 50 ms by calling updateplot method
 
-        self.timer.start(1000/FPS)  # timeout in milliseconds ... 50ms => 20 frames per second
-
         # If user has selected All in one plot => use different methods to refresh data
         if is_combine_all_checked:
-            self.connect(self.timer, QtCore.SIGNAL('timeout()'), self.updateplot_combined)
+            self.timer2.start(1000 / FPS)  # timeout in milliseconds ... 50ms => 20 frames per second
+            self.connect(self.timer2, QtCore.SIGNAL('timeout()'), self.updateplot_combined)
         else:
-            self.connect(self.timer, QtCore.SIGNAL('timeout()'), self.updateplot)
+            self.timer1.start(1000 / FPS)  # timeout in milliseconds ... 50ms => 20 frames per second
+            self.connect(self.timer1, QtCore.SIGNAL('timeout()'), self.updateplot)
 
         self.console.append('Sampling Started')
 
@@ -224,20 +225,18 @@ class PlotWindow(QtGui.QWidget):
         # Draw the grid first and then show the window
 
         self._redrawgrid(list_of_channels_to_display, is_combine_all_checked)
-        if is_combine_all_checked:
-            # TODO Add the missing functionality
-            pass
-        else:
-            super(PlotWindow, self).show()
+
+        super(PlotWindow, self).show()
 
     def _redrawgrid(self, list_of_channels_to_display, is_combine_all_checked):
+        # Clear the grid before laying out a new one
         self._cleargridlayout()
 
         # If user wants combined plot create only 1 Widget if not create as many as user desires
-        if is_combine_all_checked:
-            # TODO Add the missing functionality
-            pass
-        else:
+        if is_combine_all_checked: # Add only one widget where all plots will be put inside
+            self.gridLayout.addWidget(CombinedPlotWidget(list_of_channels=list_of_channels_to_display))
+
+        else:  # Add multiple widgets for each individual channels
             for channel_id in list_of_channels_to_display:
                 self.gridLayout.addWidget(CustomPlotWidget(self, channel_id))
 
@@ -261,13 +260,13 @@ class PlotWindow(QtGui.QWidget):
             self.gridLayout.itemAt(index).widget().setData(channels[list_of_channels_to_display[index]-1])
 
     def updateplot_combined(self):
-        # TODO Add the missing functionality
-        # Refreshing the data for combine_all plot
-        pass
+        self.console.append('Now showing with combined combined plot')
+
 
     def closeEvent(self, QCloseEvent):
         # When user closes the PlotWindow stop the timer (disconnect from updateplot method)
-        self.timer.stop()
+        self.timer1.stop()
+        self.timer2.stop()
         self.console.append('Sampling Ended')
 
 class CustomPlotWidget(pg.PlotWidget):
@@ -283,12 +282,33 @@ class CustomPlotWidget(pg.PlotWidget):
         self.setTitle('Channel %d' % self._channelId)
         # self.resize(400, 400)
         # self.setRange(QtCore.QRectF(0, -10, 5000, 20))
-        self.setLabels(left='Voltage (MV)', bottom='time')
+        self.setLabels(left='ADC Value', bottom='Time')
         self._plot_item = self.plot()
 
 
     def setData(self, signal):
         self._plot_item.setData(signal)
+
+
+class CombinedPlotWidget(pg.GraphicsWindow):
+    def __init__(self, list_of_channels):
+
+        super(CombinedPlotWidget, self).__init__()
+
+        self._list_of_channels = list_of_channels
+
+
+        self._plot_item = self.addPlot()
+        self._plot_item.plot(np.random.normal(size=100), pen=(255, 0, 0))
+        self._plot_item.plot(np.random.normal(size=100), pen=(0, 255, 0))
+        self._plot_item.plot(np.random.normal(size=100), pen=(0, 0, 255))
+
+
+
+    # def addPlots(self, list_of_channels, signal):
+    #     for index in list_of_channels:
+    #         self._plot_item.plot(signal)
+
 
 
 # Data_Generator generates "random white noise"
