@@ -112,6 +112,9 @@ class MainWindow(QtGui.QMainWindow):
         if len(channels_to_plot) != 0:
             self._plotWindow.showwindow(channels_to_plot, is_combine_all_checked)
 
+        # Stop the timers (this is here because of possibility of user pressing Start Sampling while PlotWindow is on
+        self._plotWindow.stop_timers()
+
         # Start Refresing the data on _plotWindow
         self._plotWindow.start_refreshing(is_combine_all_checked=is_combine_all_checked, FPS=self.FPS.value(),
                                           channels_to_plot=self.getlistofcheckedchannels())
@@ -260,7 +263,6 @@ class PlotWindow(QtGui.QWidget):
             self.gridLayout.itemAt(index).widget().setData(channels[list_of_channels_to_display[index]-1])
 
     def updateplot_combined(self):
-        self.console.append('Now showing with combined combined plot')
 
         list_of_channels_to_display = self._list_of_channels_to_display
 
@@ -272,12 +274,16 @@ class PlotWindow(QtGui.QWidget):
 
         self.gridLayout.itemAt(0).widget().updatedata(channels, list_of_channels=list_of_channels_to_display)
 
-
     def closeEvent(self, QCloseEvent):
         # When user closes the PlotWindow stop the timer (disconnect from updateplot method)
+        self.stop_timers()
+        # self._cleargridlayout()
+        self.console.append('Sampling Ended')
+
+    def stop_timers(self):
         self.timer1.stop()
         self.timer2.stop()
-        self.console.append('Sampling Ended')
+
 
 class CustomPlotWidget(pg.PlotWidget):
 
@@ -296,14 +302,14 @@ class CustomPlotWidget(pg.PlotWidget):
         self.setLabels(left='ADC Value', bottom='Time')
         self._plot_item = self.plot()
 
-
-
     def setData(self, signal):
         self._plot_item.setData(signal)
-        # self.plot().setData(np.random.normal(size=100), pen=(255, 0, 0))
 
 
-class CombinedPlotWidget(pg.GraphicsWindow):
+class CombinedPlotWidget(pg.GraphicsWindow):  # GraphicsWindow cannot have parent(Might be problematic)
+    # This class is used when user selects combine all option from MainWindow since this time we need only one widget
+    # and that widget will have multiple curves
+
     def __init__(self, list_of_channels):
 
         super(CombinedPlotWidget, self).__init__()
@@ -312,23 +318,25 @@ class CombinedPlotWidget(pg.GraphicsWindow):
 
         self._plot_item = self.addPlot()
 
-        self._curve1_item = self._plot_item.plot()
-        self._curve2_item = self._plot_item.plot()
-        self._curve3_item = self._plot_item.plot()
-        self._curve4_item = self._plot_item.plot()
-        self._curve5_item = self._plot_item.plot()
-        self._curve6_item = self._plot_item.plot()
-        self._curve7_item = self._plot_item.plot()
-        self._curve8_item = self._plot_item.plot()
+        self._plot_item.addLegend()
+
+        self._curve1_item = self._plot_item.plot(pen=(255, 0, 0),       name='Channel 1')
+        self._curve2_item = self._plot_item.plot(pen=(0, 255, 0),       name='Channel 2')
+        self._curve3_item = self._plot_item.plot(pen=(0, 0, 255),       name='Channel 3')
+        self._curve4_item = self._plot_item.plot(pen=(255, 255, 0),     name='Channel 4')
+        self._curve5_item = self._plot_item.plot(pen=(255, 0, 255),     name='Channel 5')
+        self._curve6_item = self._plot_item.plot(pen=(0, 255, 255),     name='Channel 6')
+        self._curve7_item = self._plot_item.plot(pen=(255, 255, 0),     name='Channel 7')
+        self._curve8_item = self._plot_item.plot(pen=(255, 255, 255),   name='Channel 8')
 
         self.curves = [self._curve1_item, self._curve2_item, self._curve3_item, self._curve4_item, self._curve5_item,
                        self._curve6_item, self._curve7_item, self._curve8_item]
 
-
     def updatedata(self, signals, list_of_channels):
 
         for index in range(len(list_of_channels)):
-            self.curves[index].setData(signals[list_of_channels[index]-1])
+            self.curves[list_of_channels[index]-1].setData(signals[list_of_channels[index]-1])
+
 
 # Data_Generator generates "random white noise"
 class DataGenerator:
