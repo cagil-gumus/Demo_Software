@@ -17,6 +17,7 @@ import sys
 import numpy as np
 import pyqtgraph as pg
 import deviceaccess
+import datetime
 import re
 
 
@@ -67,7 +68,7 @@ class MainWindow(QtGui.QMainWindow):
                                          .format(float(deviceaccess.readinternalclockfrequency())/1000000))
             self.label_connectionstatus.setText('Connection Status: Connected')
         else:
-            print('Cannot connect to DS8VM1')
+            self.textBrowser_console.append('Cannot connect to AMC')
             self.label_connectionstatus.setText('Connection Status: Failed')
 
     def initilizebuttonispressed(self):
@@ -97,10 +98,10 @@ class MainWindow(QtGui.QMainWindow):
             self.pushButton_initializeboard.setEnabled(True)
 
         elif externalclockpreference:
-            self.textBrowser_console.append('External Clock Configuration not available')
+            self.textBrowser_console.append('External Clock Configuration not available -Yet-')
 
         else:
-            print ('Signal Source not selected')
+            self.textBrowser_console.append('Please choose clock source first')
 
     def samplingbuttonispressed(self):
 
@@ -183,6 +184,7 @@ class MainWindow(QtGui.QMainWindow):
 
         self.slotselection = self.comboBox_slotnumber.currentText()
         return int(self.slotselection)
+
 
 
 class PlotWindow(QtGui.QWidget):
@@ -317,7 +319,9 @@ class CombinedPlotWidget(pg.GraphicsWindow):  # GraphicsWindow cannot have paren
         self._list_of_channels = list_of_channels
 
         self._plot_item = self.addPlot()
-
+        self._plot_item.showGrid(x=True, y=True)
+        self._plot_item.setLabel('left', 'ADC Value')
+        self._plot_item.setLabel('bottom', 'Time')
         self._plot_item.addLegend()
 
         self._curve1_item = self._plot_item.plot(pen=(255, 0, 0),       name='Channel 1')
