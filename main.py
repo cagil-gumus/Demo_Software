@@ -262,6 +262,16 @@ class PlotWindow(QtGui.QWidget):
     def updateplot_combined(self):
         self.console.append('Now showing with combined combined plot')
 
+        list_of_channels_to_display = self._list_of_channels_to_display
+
+        channel_1_data, channel_2_data, channel_3_data, channel_4_data, \
+        channel_5_data, channel_6_data, channel_7_data, channel_8_data = deviceaccess.readdma(buffer_size=100)
+
+        channels = [channel_1_data, channel_2_data, channel_3_data, channel_4_data,
+                    channel_5_data, channel_6_data, channel_7_data, channel_8_data]
+
+        self.gridLayout.itemAt(0).widget().updatedata(channels, list_of_channels=list_of_channels_to_display)
+
 
     def closeEvent(self, QCloseEvent):
         # When user closes the PlotWindow stop the timer (disconnect from updateplot method)
@@ -270,6 +280,7 @@ class PlotWindow(QtGui.QWidget):
         self.console.append('Sampling Ended')
 
 class CustomPlotWidget(pg.PlotWidget):
+
     def __init__(self, parent, channelId):
         # TODO Add additional values for custom class
         # pg.setConfigOption('background', 'w')
@@ -286,8 +297,10 @@ class CustomPlotWidget(pg.PlotWidget):
         self._plot_item = self.plot()
 
 
+
     def setData(self, signal):
         self._plot_item.setData(signal)
+        # self.plot().setData(np.random.normal(size=100), pen=(255, 0, 0))
 
 
 class CombinedPlotWidget(pg.GraphicsWindow):
@@ -297,19 +310,25 @@ class CombinedPlotWidget(pg.GraphicsWindow):
 
         self._list_of_channels = list_of_channels
 
-
         self._plot_item = self.addPlot()
-        self._plot_item.plot(np.random.normal(size=100), pen=(255, 0, 0))
-        self._plot_item.plot(np.random.normal(size=100), pen=(0, 255, 0))
-        self._plot_item.plot(np.random.normal(size=100), pen=(0, 0, 255))
+
+        self._curve1_item = self._plot_item.plot()
+        self._curve2_item = self._plot_item.plot()
+        self._curve3_item = self._plot_item.plot()
+        self._curve4_item = self._plot_item.plot()
+        self._curve5_item = self._plot_item.plot()
+        self._curve6_item = self._plot_item.plot()
+        self._curve7_item = self._plot_item.plot()
+        self._curve8_item = self._plot_item.plot()
+
+        self.curves = [self._curve1_item, self._curve2_item, self._curve3_item, self._curve4_item, self._curve5_item,
+                       self._curve6_item, self._curve7_item, self._curve8_item]
 
 
+    def updatedata(self, signals, list_of_channels):
 
-    # def addPlots(self, list_of_channels, signal):
-    #     for index in list_of_channels:
-    #         self._plot_item.plot(signal)
-
-
+        for index in range(len(list_of_channels)):
+            self.curves[index].setData(signals[list_of_channels[index]-1])
 
 # Data_Generator generates "random white noise"
 class DataGenerator:
