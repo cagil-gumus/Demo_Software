@@ -84,7 +84,7 @@
     <widget class="QWidget" name="BoardSetup">
      <attribute name="icon">
       <iconset>
-       <normaloff>../.designer/.designer/backup/DESY-Logo-cyan-RGB_ger.png</normaloff>../.designer/.designer/backup/DESY-Logo-cyan-RGB_ger.png</iconset>
+       <normaloff>../.designer/.designer/.designer/backup/DESY-Logo-cyan-RGB_ger.png</normaloff>../.designer/.designer/.designer/backup/DESY-Logo-cyan-RGB_ger.png</iconset>
      </attribute>
      <attribute name="title">
       <string>Board Setup</string>
@@ -286,14 +286,14 @@
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_4">
        <item>
-        <widget class="QLabel" name="label_board_2">
+        <widget class="QLabel" name="label_rtm_firmware">
          <property name="text">
           <string>Firmware:</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="label_firmware_2">
+        <widget class="QLabel" name="label_rtm_revision">
          <property name="text">
           <string>Revision:</string>
          </property>
@@ -344,14 +344,14 @@
       </property>
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
-        <widget class="QLabel" name="label_board">
+        <widget class="QLabel" name="label_amc_firmware">
          <property name="text">
           <string>Firmware:</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="label_firmware">
+        <widget class="QLabel" name="label_amc_revision">
          <property name="text">
           <string>Revision:</string>
          </property>

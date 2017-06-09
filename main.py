@@ -17,8 +17,6 @@ import sys
 import numpy as np
 import pyqtgraph as pg
 import deviceaccess
-import datetime
-import re
 
 
 class MainWindow(QtGui.QMainWindow):
@@ -45,9 +43,11 @@ class MainWindow(QtGui.QMainWindow):
 
         self._checkBox_combineall = self.checkBox_combineall.isChecked()
         self._console = self.textBrowser_console
+        self._bufferlength = self.bufferlength
 
         # Button Connections to the methods
         self.pushButton_connecttoboard.clicked.connect(self.connecttoboardispressed)
+        self.pushButton_readboardinfo.clicked.connect(self.readboardinfoispressed)
         self.pushButton_initializeboard.clicked.connect(self.initilizebuttonispressed)
         self.pushButton_startsampling.clicked.connect(self.samplingbuttonispressed)
         self.pushButton_resetboard.clicked.connect(self.resetbuttonispressed)
@@ -64,8 +64,6 @@ class MainWindow(QtGui.QMainWindow):
 
         if connection_status:
             self.textBrowser_console.append('Connection Established')
-            self.label_mainclock.setText("Main Clock Frequency: {} MHz"
-                                         .format(float(deviceaccess.readinternalclockfrequency())/1000000))
             self.label_connectionstatus.setText('Connection Status: Connected')
         else:
             self.textBrowser_console.append('Cannot connect to AMC')
@@ -128,6 +126,14 @@ class MainWindow(QtGui.QMainWindow):
         # deviceaccess.resetboard()
         self.textBrowser_console.append('Reset Completed')
 
+    def readboardinfoispressed(self):
+        self.label_amc_firmware.setText('Firmware: {}'.format(deviceaccess.getamcfirmware()))
+        self.label_rtm_firmware.setText('Firmware: {}'.format(deviceaccess.getrtmfirmware()))
+        self.label_amc_revision.setText('Revision: {}'.format(deviceaccess.getamcrevision()))
+        self.label_rtm_revision.setText('Revision: {}'.format(deviceaccess.getrtmrevision()))
+        self.label_mainclock.setText("Main Clock Frequency: {} MHz"
+                                     .format(float(deviceaccess.readexternalclockfrequency()) / 1000000))
+
 
 
     def pllconfiguration(self):
@@ -151,6 +157,7 @@ class MainWindow(QtGui.QMainWindow):
 
         except IOError: # If something happens throw error message
             self.label_codeloader_status.setText('Cannot read the file')
+            return
 
         pll_data = pll_file.readlines()
 
@@ -185,6 +192,9 @@ class MainWindow(QtGui.QMainWindow):
         self.slotselection = self.comboBox_slotnumber.currentText()
         return int(self.slotselection)
 
+    def getbufferlength(self):
+        self._bufferlength = self.bufferlength.value()
+        return self._bufferlength
 
 
 class PlotWindow(QtGui.QWidget):
@@ -196,8 +206,8 @@ class PlotWindow(QtGui.QWidget):
         self.setGeometry(0, 0, 1000, 1000)
 
         self._checkBox_combineall = parent._checkBox_combineall
-
         self.console = parent._console
+        self._bufferlength = parent.bufferlength
 
         # Construct the Grid Layout
         self.gridLayout = QtGui.QGridLayout(self)
@@ -205,9 +215,6 @@ class PlotWindow(QtGui.QWidget):
         # Create Timer for refreshing the window
         self.timer1 = QtCore.QTimer()
         self.timer2 = QtCore.QTimer()
-
-        # Get random signal from Data Generator
-        self.signal_source = DataGenerator()
 
         self._list_of_channels_to_display = []
 
@@ -252,11 +259,13 @@ class PlotWindow(QtGui.QWidget):
             childItem = self.gridLayout.takeAt(0)
 
     def updateplot(self):
-
+        # This is where we refresh the data on plot
         list_of_channels_to_display = self._list_of_channels_to_display
 
+        # Get all channels (readdma always returns all channels)
         channel_1_data, channel_2_data, channel_3_data, channel_4_data, \
-        channel_5_data, channel_6_data, channel_7_data, channel_8_data = deviceaccess.readdma(buffer_size=100)
+        channel_5_data, channel_6_data, channel_7_data, channel_8_data = \
+            deviceaccess.readdma(buffer_size=self._bufferlength.value())
 
         channels = [channel_1_data, channel_2_data, channel_3_data, channel_4_data,
                     channel_5_data, channel_6_data, channel_7_data, channel_8_data]
@@ -269,7 +278,8 @@ class PlotWindow(QtGui.QWidget):
         list_of_channels_to_display = self._list_of_channels_to_display
 
         channel_1_data, channel_2_data, channel_3_data, channel_4_data, \
-        channel_5_data, channel_6_data, channel_7_data, channel_8_data = deviceaccess.readdma(buffer_size=100)
+        channel_5_data, channel_6_data, channel_7_data, channel_8_data = \
+            deviceaccess.readdma(buffer_size=self._bufferlength.value())
 
         channels = [channel_1_data, channel_2_data, channel_3_data, channel_4_data,
                     channel_5_data, channel_6_data, channel_7_data, channel_8_data]
@@ -290,21 +300,14 @@ class PlotWindow(QtGui.QWidget):
 class CustomPlotWidget(pg.PlotWidget):
 
     def __init__(self, parent, channelId):
-        # TODO Add additional values for custom class
-        # pg.setConfigOption('background', 'w')
-        # pg.setConfigOption('foreground', 'k')
-
-        # pen = pg.mkPen('y', width=3, style=QtCore.Qt.DashLine)
-
         super(CustomPlotWidget, self).__init__(parent)
         self._channelId = channelId
         self.setTitle('Channel %d' % self._channelId)
-        # self.resize(400, 400)
-        # self.setRange(QtCore.QRectF(0, -10, 5000, 20))
         self.setLabels(left='ADC Value', bottom='Time')
+
         self._plot_item = self.plot()
 
-    def setData(self, signal):
+    def setData(self, signal):  # setData replaces the data on plot (plot(data) will overwrite)
         self._plot_item.setData(signal)
 
 
@@ -319,11 +322,14 @@ class CombinedPlotWidget(pg.GraphicsWindow):  # GraphicsWindow cannot have paren
         self._list_of_channels = list_of_channels
 
         self._plot_item = self.addPlot()
+
+        # Display Adjustment
         self._plot_item.showGrid(x=True, y=True)
         self._plot_item.setLabel('left', 'ADC Value')
         self._plot_item.setLabel('bottom', 'Time')
         self._plot_item.addLegend()
 
+        # We have one plot item which holds 8 curves
         self._curve1_item = self._plot_item.plot(pen=(255, 0, 0),       name='Channel 1')
         self._curve2_item = self._plot_item.plot(pen=(0, 255, 0),       name='Channel 2')
         self._curve3_item = self._plot_item.plot(pen=(0, 0, 255),       name='Channel 3')
@@ -340,18 +346,6 @@ class CombinedPlotWidget(pg.GraphicsWindow):  # GraphicsWindow cannot have paren
 
         for index in range(len(list_of_channels)):
             self.curves[list_of_channels[index]-1].setData(signals[list_of_channels[index]-1])
-
-
-# Data_Generator generates "random white noise"
-class DataGenerator:
-    def __init__(self):
-        self.data = np.random.normal(size=(50, 5000))
-        self.ptr = 0
-
-    def get_data(self):
-        self.ptr += 1
-        signal = self.data[self.ptr % 10]
-        return signal
 
 
 def main():

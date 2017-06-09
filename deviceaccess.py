@@ -281,3 +281,27 @@ def configurepll(registers):
     #     time.sleep(1)  # Wait for 1 second
 
 
+def getrtmfirmware():
+    global boardwithmodules
+    rtm_firmware = boardwithmodules.read("BOARD0", "WORD_FIRMWARE")
+    return rtm_firmware
+
+
+def getamcfirmware():
+    global boardwithmodules
+    amc_firmware = boardwithmodules.read("APP0", "WORD_FIRMWARE_APP")
+    return amc_firmware
+
+
+def getrtmrevision():
+    global boardwithmodules
+    rtm_revision = boardwithmodules.read("BOARD0", "WORD_REVISION")
+    return rtm_revision
+
+
+def getamcrevision():
+    global boardwithmodules
+    amc_firmware = boardwithmodules.read("APP0", "WORD_REVISION_APP")
+    return amc_firmware
+
+
