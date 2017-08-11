@@ -39,7 +39,9 @@ class MainWindow(QtGui.QMainWindow):
                                             self.checkBox_channel5,
                                             self.checkBox_channel6,
                                             self.checkBox_channel7,
-                                            self.checkBox_channel8]
+                                            self.checkBox_channel8,
+                                            self.checkBox_channel9,     # DC Channel 1
+                                            self.checkBox_channel10]    # DC Channel 2
 
         self._checkBox_combineall = self.checkBox_combineall.isChecked()
         self._console = self.textBrowser_console
@@ -52,9 +54,14 @@ class MainWindow(QtGui.QMainWindow):
         self.pushButton_startsampling.clicked.connect(self.samplingbuttonispressed)
         self.pushButton_resetboard.clicked.connect(self.resetbuttonispressed)
         self.pushButton_pllconfig.clicked.connect(self.pllconfiguration)
+        self.pushButton_set_att_values.clicked.connect(self.setattvalueispressed)
 
         #  Create emtpy object for instance from PlotWindow class
         self._plotWindow = PlotWindow(self)
+
+        # Configuration Parameters
+        self.max_freq_jitter = 3000     # 1kHz
+        self.internal_clock_frequency = 62500000    # 62.5 MHz
 
     def connecttoboardispressed(self):
 
@@ -91,7 +98,16 @@ class MainWindow(QtGui.QMainWindow):
             deviceaccess.configuretiming()
             self.progressBar.setValue(100)
 
-            self.textBrowser_console.append('Timing Configuration Completed')
+            print (deviceaccess.readexternalclockfrequency() - self.internal_clock_frequency)
+            print self.max_freq_jitter
+
+            if deviceaccess.readexternalclockfrequency() - self.internal_clock_frequency < self.max_freq_jitter:
+                self.textBrowser_console.append('Timing Configuration Completed.  \n Frequency = {} Hz'.
+                                                format(deviceaccess.readexternalclockfrequency()))
+
+            else:
+                self.textBrowser_console.append('Wrong clock frequency detected. \n Frequency = {} Hz'.
+                                                format(deviceaccess.readexternalclockfrequency()))
 
             self.pushButton_initializeboard.setEnabled(True)
 
@@ -134,6 +150,22 @@ class MainWindow(QtGui.QMainWindow):
         self.label_mainclock.setText("Main Clock Frequency: {} MHz"
                                      .format(float(deviceaccess.readexternalclockfrequency()) / 1000000))
 
+    def setattvalueispressed(self):
+
+        channel1_att_value_set = 63 - self.channel1_att_value.value()*2
+        channel2_att_value_set = 63 - self.channel2_att_value.value()*2
+        channel3_att_value_set = 63 - self.channel3_att_value.value()*2
+        channel4_att_value_set = 63 - self.channel4_att_value.value()*2
+        channel5_att_value_set = 63 - self.channel5_att_value.value()*2
+        channel6_att_value_set = 63 - self.channel6_att_value.value()*2
+        channel7_att_value_set = 63 - self.channel7_att_value.value()*2
+        channel8_att_value_set = 63 - self.channel8_att_value.value()*2
+
+        print channel1_att_value_set
+
+        deviceaccess.setattvalues(channel1_att_value_set, channel2_att_value_set, channel3_att_value_set,
+                                  channel4_att_value_set, channel5_att_value_set, channel6_att_value_set,
+                                  channel7_att_value_set, channel8_att_value_set)
 
 
     def pllconfiguration(self):
@@ -264,11 +296,11 @@ class PlotWindow(QtGui.QWidget):
 
         # Get all channels (readdma always returns all channels)
         channel_1_data, channel_2_data, channel_3_data, channel_4_data, \
-        channel_5_data, channel_6_data, channel_7_data, channel_8_data = \
+        channel_5_data, channel_6_data, channel_7_data, channel_8_data, channel_9_data, channel_10_data = \
             deviceaccess.readdma(buffer_size=self._bufferlength.value())
 
         channels = [channel_1_data, channel_2_data, channel_3_data, channel_4_data,
-                    channel_5_data, channel_6_data, channel_7_data, channel_8_data]
+                    channel_5_data, channel_6_data, channel_7_data, channel_8_data, channel_9_data, channel_10_data]
 
         for index in range(self.gridLayout.count()):
             self.gridLayout.itemAt(index).widget().setData(channels[list_of_channels_to_display[index]-1])
@@ -278,11 +310,11 @@ class PlotWindow(QtGui.QWidget):
         list_of_channels_to_display = self._list_of_channels_to_display
 
         channel_1_data, channel_2_data, channel_3_data, channel_4_data, \
-        channel_5_data, channel_6_data, channel_7_data, channel_8_data = \
+        channel_5_data, channel_6_data, channel_7_data, channel_8_data, channel_9_data, channel_10_data = \
             deviceaccess.readdma(buffer_size=self._bufferlength.value())
 
         channels = [channel_1_data, channel_2_data, channel_3_data, channel_4_data,
-                    channel_5_data, channel_6_data, channel_7_data, channel_8_data]
+                    channel_5_data, channel_6_data, channel_7_data, channel_8_data, channel_9_data, channel_10_data]
 
         self.gridLayout.itemAt(0).widget().updatedata(channels, list_of_channels=list_of_channels_to_display)
 
@@ -329,18 +361,20 @@ class CombinedPlotWidget(pg.GraphicsWindow):  # GraphicsWindow cannot have paren
         self._plot_item.setLabel('bottom', 'Time')
         self._plot_item.addLegend()
 
-        # We have one plot item which holds 8 curves
-        self._curve1_item = self._plot_item.plot(pen=(255, 0, 0),       name='Channel 1')
-        self._curve2_item = self._plot_item.plot(pen=(0, 255, 0),       name='Channel 2')
-        self._curve3_item = self._plot_item.plot(pen=(0, 0, 255),       name='Channel 3')
-        self._curve4_item = self._plot_item.plot(pen=(255, 255, 0),     name='Channel 4')
-        self._curve5_item = self._plot_item.plot(pen=(255, 0, 255),     name='Channel 5')
-        self._curve6_item = self._plot_item.plot(pen=(0, 255, 255),     name='Channel 6')
-        self._curve7_item = self._plot_item.plot(pen=(255, 255, 0),     name='Channel 7')
-        self._curve8_item = self._plot_item.plot(pen=(255, 255, 255),   name='Channel 8')
+        # We have one plot item which holds 10 curves
+        self._curve1_item = self._plot_item.plot(pen=(255, 0, 0),           name='Channel 1')
+        self._curve2_item = self._plot_item.plot(pen=(255, 128, 0),         name='Channel 2')
+        self._curve3_item = self._plot_item.plot(pen=(255, 255, 0),         name='Channel 3')
+        self._curve4_item = self._plot_item.plot(pen=(128, 255, 0),         name='Channel 4')
+        self._curve5_item = self._plot_item.plot(pen=(0, 255, 0),           name='Channel 5')
+        self._curve6_item = self._plot_item.plot(pen=(0, 255, 128),         name='Channel 6')
+        self._curve7_item = self._plot_item.plot(pen=(0, 128, 255),         name='Channel 7')
+        self._curve8_item = self._plot_item.plot(pen=(0, 0, 255),           name='Channel 8')
+        self._curve9_item = self._plot_item.plot(pen=(127, 0, 255),         name='DC Channel 1')
+        self._curve10_item = self._plot_item.plot(pen=(255, 0, 255),        name='DC Channel 2')
 
         self.curves = [self._curve1_item, self._curve2_item, self._curve3_item, self._curve4_item, self._curve5_item,
-                       self._curve6_item, self._curve7_item, self._curve8_item]
+                       self._curve6_item, self._curve7_item, self._curve8_item, self._curve9_item, self._curve10_item]
 
     def updatedata(self, signals, list_of_channels):
 

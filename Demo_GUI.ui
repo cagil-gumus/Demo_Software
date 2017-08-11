@@ -35,7 +35,7 @@
    <widget class="QTabWidget" name="MainTab">
     <property name="geometry">
      <rect>
-      <x>40</x>
+      <x>30</x>
       <y>30</y>
       <width>791</width>
       <height>531</height>
@@ -47,9 +47,27 @@
        <colorrole role="Button">
         <brush brushstyle="SolidPattern">
          <color alpha="255">
+          <red>86</red>
+          <green>147</green>
+          <blue>6</blue>
+         </color>
+        </brush>
+       </colorrole>
+       <colorrole role="Base">
+        <brush brushstyle="SolidPattern">
+         <color alpha="255">
           <red>255</red>
-          <green>85</green>
-          <blue>0</blue>
+          <green>255</green>
+          <blue>255</blue>
+         </color>
+        </brush>
+       </colorrole>
+       <colorrole role="Window">
+        <brush brushstyle="SolidPattern">
+         <color alpha="255">
+          <red>241</red>
+          <green>237</green>
+          <blue>228</blue>
          </color>
         </brush>
        </colorrole>
@@ -58,9 +76,27 @@
        <colorrole role="Button">
         <brush brushstyle="SolidPattern">
          <color alpha="255">
+          <red>86</red>
+          <green>147</green>
+          <blue>6</blue>
+         </color>
+        </brush>
+       </colorrole>
+       <colorrole role="Base">
+        <brush brushstyle="SolidPattern">
+         <color alpha="255">
           <red>255</red>
-          <green>85</green>
-          <blue>0</blue>
+          <green>255</green>
+          <blue>255</blue>
+         </color>
+        </brush>
+       </colorrole>
+       <colorrole role="Window">
+        <brush brushstyle="SolidPattern">
+         <color alpha="255">
+          <red>241</red>
+          <green>237</green>
+          <blue>228</blue>
          </color>
         </brush>
        </colorrole>
@@ -69,9 +105,27 @@
        <colorrole role="Button">
         <brush brushstyle="SolidPattern">
          <color alpha="255">
-          <red>255</red>
-          <green>85</green>
-          <blue>0</blue>
+          <red>86</red>
+          <green>147</green>
+          <blue>6</blue>
+         </color>
+        </brush>
+       </colorrole>
+       <colorrole role="Base">
+        <brush brushstyle="SolidPattern">
+         <color alpha="255">
+          <red>241</red>
+          <green>237</green>
+          <blue>228</blue>
+         </color>
+        </brush>
+       </colorrole>
+       <colorrole role="Window">
+        <brush brushstyle="SolidPattern">
+         <color alpha="255">
+          <red>241</red>
+          <green>237</green>
+          <blue>228</blue>
          </color>
         </brush>
        </colorrole>
@@ -511,10 +565,10 @@
      <widget class="QFrame" name="frame_8">
       <property name="geometry">
        <rect>
-        <x>270</x>
-        <y>30</y>
-        <width>231</width>
-        <height>301</height>
+        <x>210</x>
+        <y>50</y>
+        <width>351</width>
+        <height>261</height>
        </rect>
       </property>
       <property name="frameShape">
@@ -524,6 +578,36 @@
        <enum>QFrame::Raised</enum>
       </property>
       <layout class="QGridLayout" name="gridLayout_3">
+       <item row="6" column="1">
+        <widget class="QDoubleSpinBox" name="channel5_att_value">
+         <property name="maximum">
+          <double>31.500000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>0.500000000000000</double>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="QDoubleSpinBox" name="channel3_att_value">
+         <property name="maximum">
+          <double>31.500000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>0.500000000000000</double>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QDoubleSpinBox" name="channel2_att_value">
+         <property name="maximum">
+          <double>31.500000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>0.500000000000000</double>
+         </property>
+        </widget>
+       </item>
        <item row="0" column="0" colspan="2">
         <widget class="QLabel" name="label_9">
          <property name="font">
@@ -547,114 +631,129 @@
        <item row="2" column="0">
         <widget class="QLabel" name="label_11">
          <property name="text">
-          <string>Value</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="QLineEdit" name="lineEdit">
-         <property name="text">
-          <string>0 dB</string>
+          <string>Channel 1</string>
          </property>
         </widget>
        </item>
        <item row="3" column="0">
         <widget class="QLabel" name="label_12">
          <property name="text">
-          <string>Value</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="1">
-        <widget class="QLineEdit" name="lineEdit_2">
-         <property name="text">
-          <string>0 dB</string>
+          <string>Channel 2</string>
          </property>
         </widget>
        </item>
        <item row="4" column="0">
         <widget class="QLabel" name="label_13">
          <property name="text">
-          <string>Value</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="1">
-        <widget class="QLineEdit" name="lineEdit_3">
-         <property name="text">
-          <string>0 dB</string>
+          <string>Channel 3</string>
          </property>
         </widget>
        </item>
        <item row="5" column="0">
         <widget class="QLabel" name="label_14">
          <property name="text">
-          <string>Value</string>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="1">
-        <widget class="QLineEdit" name="lineEdit_4">
-         <property name="text">
-          <string>0 dB</string>
+          <string>Channel 4</string>
          </property>
         </widget>
        </item>
        <item row="6" column="0">
         <widget class="QLabel" name="label_15">
          <property name="text">
-          <string>Value</string>
-         </property>
-        </widget>
-       </item>
-       <item row="6" column="1">
-        <widget class="QLineEdit" name="lineEdit_5">
-         <property name="text">
-          <string>0 dB</string>
+          <string>Channel 5</string>
          </property>
         </widget>
        </item>
        <item row="7" column="0">
         <widget class="QLabel" name="label_16">
          <property name="text">
-          <string>Value</string>
+          <string>Channel 6</string>
          </property>
         </widget>
        </item>
-       <item row="7" column="1">
-        <widget class="QLineEdit" name="lineEdit_6">
+       <item row="9" column="0">
+        <widget class="QLabel" name="label_18">
          <property name="text">
-          <string>0 dB</string>
+          <string>Channel 8</string>
          </property>
         </widget>
        </item>
        <item row="8" column="0">
         <widget class="QLabel" name="label_17">
          <property name="text">
-          <string>Value</string>
+          <string>Channel 7</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QDoubleSpinBox" name="channel1_att_value">
+         <property name="maximum">
+          <double>31.500000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>0.500000000000000</double>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLabel" name="label_19">
+         <property name="text">
+          <string>dBm</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="1">
+        <widget class="QDoubleSpinBox" name="channel4_att_value">
+         <property name="maximum">
+          <double>31.500000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>0.500000000000000</double>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="1">
+        <widget class="QDoubleSpinBox" name="channel6_att_value">
+         <property name="maximum">
+          <double>31.500000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>0.500000000000000</double>
          </property>
         </widget>
        </item>
        <item row="8" column="1">
-        <widget class="QLineEdit" name="lineEdit_7">
-         <property name="text">
-          <string>0 dB</string>
+        <widget class="QDoubleSpinBox" name="channel7_att_value">
+         <property name="maximum">
+          <double>31.500000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>0.500000000000000</double>
+         </property>
+        </widget>
+       </item>
+       <item row="9" column="1">
+        <widget class="QDoubleSpinBox" name="channel8_att_value">
+         <property name="maximum">
+          <double>31.500000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>0.500000000000000</double>
          </property>
         </widget>
        </item>
       </layout>
      </widget>
-     <widget class="QPushButton" name="pushButton">
+     <widget class="QPushButton" name="pushButton_set_att_values">
       <property name="geometry">
        <rect>
-        <x>310</x>
-        <y>370</y>
+        <x>300</x>
+        <y>340</y>
         <width>151</width>
         <height>31</height>
        </rect>
       </property>
       <property name="text">
-       <string>Set Attenuator Value</string>
+       <string>Set Attenuator Values</string>
       </property>
      </widget>
     </widget>
@@ -672,8 +771,8 @@
        <rect>
         <x>30</x>
         <y>30</y>
-        <width>183</width>
-        <height>236</height>
+        <width>191</width>
+        <height>261</height>
        </rect>
       </property>
       <property name="frameShape">
@@ -758,6 +857,20 @@
          </property>
         </widget>
        </item>
+       <item>
+        <widget class="QCheckBox" name="checkBox_channel9">
+         <property name="text">
+          <string>DC Channel 1</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="checkBox_channel10">
+         <property name="text">
+          <string>DC Channel 2</string>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
      <widget class="QFrame" name="frame_5">
@@ -799,12 +912,12 @@
         <rect>
          <x>10</x>
          <y>90</y>
-         <width>107</width>
-         <height>19</height>
+         <width>171</width>
+         <height>21</height>
         </rect>
        </property>
        <property name="text">
-        <string>All in one plot</string>
+        <string>Combine all in one plot</string>
        </property>
       </widget>
       <widget class="QLabel" name="label_4">
@@ -894,8 +1007,8 @@
      <widget class="QPushButton" name="pushButton_startsampling">
       <property name="geometry">
        <rect>
-        <x>570</x>
-        <y>210</y>
+        <x>310</x>
+        <y>320</y>
         <width>171</width>
         <height>51</height>
        </rect>
@@ -1087,6 +1200,38 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>114</x>
      <y>327</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_checkall</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>checkBox_channel9</receiver>
+   <slot>setChecked(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>341</x>
+     <y>172</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>321</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_checkall</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>checkBox_channel10</receiver>
+   <slot>setChecked(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>341</x>
+     <y>172</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>344</y>
     </hint>
    </hints>
   </connection>
