@@ -85,6 +85,9 @@ APP0.WORD_PROT_T1                                                     1         
 APP0.WORD_PROT_FL_ENA                                                 1         1220            4      1     18      0    0   RW
 APP0.WORD_PROT_ENA_N                                                  1         1224            4      1      1      0    0   RW
 APP0.BIT_FB_INT_ENA                                                   1         1228            4      1      1      0    0   RW
+APP0.WORD_CW_CAV_PROT_ENA                                             1         1232            4      1      1      0    0   RW
+APP0.WORD_CAV_PROT_RESET                                              1         1236            4      1      1      0    0   RW
+APP0.WORD_CW_PROT_STATUS                                              1         1240            4      1      4      0    0   RO
 APP0.VAR_CON_RTM_TYPE                                              1024       786432         4096      1     32      0    0   RW
 DS8VM10.WORD_FIRMWARE                                                 1       786432            4      1     32      0    0   RO
 DS8VM10.WORD_REVISION                                                 1       786444            4      1     32      0    0   RO
@@ -115,6 +118,7 @@ DS8VM10.WORD_TEMP_A                                                   1       78
 DS8VM10.WORD_TEMP_B                                                   1       786596            4      1     25      0    1   RO
 DS8VM10.WORD_TEMP_C                                                   1       786600            4      1     25      0    1   RO
 DS8VM10.WORD_TEMP_D                                                   1       786604            4      1     25      0    1   RO
+DS8VM10.WORD_TEMP_E                                                   1       786608            4      1     16      0    1   RO
 APP0.EXT_DCM                                                    2097152      8388608      8388608      1     32      0    0   RW
 DCM0.WORD_FIRMWARE_DCM                                                1      8388608            4      1     32      0    0   RO
 DCM0.WORD_VERSION_DCM                                                 1      8388612            4      1     32      0    0   RO
