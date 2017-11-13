@@ -178,6 +178,8 @@ def configureadcs():
     #   Configure the ADC via SPI Interface
 
     global boardwithmodules
+
+    # Reset the FPGA
     boardwithmodules.write('BOARD0', 'WORD_RESET_N', 0)
     boardwithmodules.write('BOARD0', 'WORD_RESET_N', 1)
     time.sleep(0.5)     # Wait for 500 ms
@@ -198,13 +200,13 @@ def configureadcs():
     boardwithmodules.write('BOARD0', 'WORD_ADC_ENA', 1)
 
 
-def configuretiming():
+def configuretiming(timing_frequency):
     # Configure trigger freq and DAQ
 
     global boardwithmodules
 
     # Set internal trigger freq for 10Hz (app_clk/(value+1)
-    boardwithmodules.write('APP0', 'WORD_TIMING_FREQ', 6250000-1, 0)
+    boardwithmodules.write('APP0', 'WORD_TIMING_FREQ', timing_frequency, 0)
     # Set Clock Divider for DAQ1 (app_clk/(value+1)
     boardwithmodules.write('APP0', 'WORD_TIMING_FREQ', 0, 7)
     # Select MAIN trigger line (available 8 lines)
@@ -265,13 +267,11 @@ def readdma(buffer_size):
 def configurepll(registers):
     # Configure the PLL inside RTM
 
-    pass
+    global boardwithmodules
 
-    # global boardwithmodules
-    #
-    # for index in len(registers):
-    #     boardwithmodules.write('BOARD0', 'WORD_PLL_DATA', int(registers[index]))
-    #     time.sleep(1)  # Wait for 1 second
+    for index in range(len(registers)):
+        boardwithmodules.write('DS8VM1', 'WORD_PLL_DATA', int(registers[index]))
+        time.sleep(1)  # Wait for 1 second
 
 
 def getrtmfirmware():
@@ -345,158 +345,173 @@ def setattvalues(channel1_att_value_set, channel2_att_value_set, channel3_att_va
 
 
 def external_clock_initilization():
-    pass
 
-    # global boardwithmodules
-    #
-    # status = boardwithmodules.read_raw("BOARD0", "WORD_BOOT_STATUS")
-    #
-    # if status == 0:
-    #     print("Performing full initialisation...")
-    #
-    #     boardwithmodules.write("BOARD0", "WORD_ADC_REVERT_CLK", 0x18)
-    #     time.sleep(0.01)
-    #
-    #     # reset clock division ICs
-    #     boardwithmodules.write("BOARD0", "WORD_CLK_SEL", 0)
-    #     time.sleep(0.01)
-    #     boardwithmodules.write("BOARD0", "WORD_CLK_RST", 1)
-    #     time.sleep(0.01)
-    #     boardwithmodules.write("BOARD0", "WORD_CLK_RST", 0)
-    #     time.sleep(0.01)
-    #
-    #     # programm clock mux
-    #     # muxData = [3, 3, 0, 0, 0, 0]  # original HZDR server
-    #     muxData = [0, 0, 3, 3, 0, 0]  # XFEL/FLASH gun server
-    #     boardwithmodules.write("BOARD0", "WORD_CLK_MUX", muxData)
-    #     time.sleep(0.01);
-    #
-    #     # SPI programming of the clock distribution IC
-    #     boardwithmodules.write("BOARD0", "AREA_SPI_DIV", 0, 0x45)
-    #     time.sleep(0.01);
-    #     # boardwithmodules.write("BOARD0","AREA_SPI_DIV", 1, 0x0A)  # original HZDR server
-    #     boardwithmodules.write("BOARD0", "AREA_SPI_DIV", 0x43, 0x0A)  # XFEL/FLASH gun server
-    #     time.sleep(0.01);
-    #     # 810 mV LVDS swing
-    #     boardwithmodules.write("BOARD0", "AREA_SPI_DIV", 0x0C, 0x3C)
-    #     time.sleep(0.01);
-    #     boardwithmodules.write("BOARD0", "AREA_SPI_DIV", 0x0C, 0x3D)
-    #     time.sleep(0.01);
-    #     boardwithmodules.write("BOARD0", "AREA_SPI_DIV", 0x0C, 0x3E)
-    #     time.sleep(0.01);
-    #     boardwithmodules.write("BOARD0", "AREA_SPI_DIV", 0x0C, 0x3F)
-    #     time.sleep(0.01);
-    #     # 3.5 mA current
-    #     boardwithmodules.write("BOARD0", "AREA_SPI_DIV", 2, 0x40)
-    #     time.sleep(0.01);
-    #     boardwithmodules.write("BOARD0", "AREA_SPI_DIV", 2, 0x41)
-    #     time.sleep(0.01);
-    #     boardwithmodules.write("BOARD0", "AREA_SPI_DIV", 2, 0x42)
-    #     time.sleep(0.01);
-    #     # boardwithmodules.write("BOARD0","AREA_SPI_DIV", 0x80, 0x43)  # original HZDR server
-    #     boardwithmodules.write("BOARD0", "AREA_SPI_DIV", 2, 0x43)  # XFEL/FLASH gun server
-    #     time.sleep(0.01);
-    #     # bypass the divider
-    #     boardwithmodules.write("BOARD0", "AREA_SPI_DIV", 0x80, 0x49)
-    #     time.sleep(0.01);
-    #     boardwithmodules.write("BOARD0", "AREA_SPI_DIV", 0x80, 0x4B)
-    #     time.sleep(0.01);
-    #     boardwithmodules.write("BOARD0", "AREA_SPI_DIV", 0x80, 0x4D)
-    #     time.sleep(0.01);
-    #     boardwithmodules.write("BOARD0", "AREA_SPI_DIV", 0x80, 0x4F)
-    #     time.sleep(0.01);
-    #     boardwithmodules.write("BOARD0", "AREA_SPI_DIV", 0x80, 0x51)
-    #     time.sleep(0.01);
-    #     boardwithmodules.write("BOARD0", "AREA_SPI_DIV", 0x80, 0x53)
-    #     time.sleep(0.01);
-    #     boardwithmodules.write("BOARD0", "AREA_SPI_DIV", 0x80, 0x55)
-    #     time.sleep(0.01);
-    #     boardwithmodules.write("BOARD0", "AREA_SPI_DIV", 0x80, 0x57)
-    #     time.sleep(0.01);
-    #     # update
-    #     boardwithmodules.write("BOARD0", "AREA_SPI_DIV", 1, 0x5A)
-    #     time.sleep(0.01);
-    #
-    #     # check clock frequency
-    #     time.sleep(5)
-    #     clockFrequency = boardwithmodules.read("BOARD0", "WORD_CLK_FREQ", 1, 1)
-    #     if (abs(clockFrequency[0] - 81250000) > 10000):
-    #         print("*****************************************************")
-    #         print("  Wrong clock frequency detected: " + str(clockFrequency[0] / 1000000) + " MHz")
-    #         print("*****************************************************")
-    #         sys.exit(1)
-    #
-    #     print("Correct clock frequency detected: " + str(clockFrequency[0] / 1000000) + " MHz")
-    #
-    #     # external clock for application part
-    #     boardwithmodules.write("BOARD0", "WORD_CLK_SEL", 1)
-    #     time.sleep(0.01)
-    #
-    #     # reset the board
-    #     boardwithmodules.write("BOARD0", "WORD_RESET_N", 0)
-    #     time.sleep(0.01)
-    #     boardwithmodules.write("BOARD0", "WORD_RESET_N", 1)
-    #     time.sleep(0.01)
-    #
-    #     # program ADCs via SPI
-    #     boardwithmodules.write("BOARD0", "AREA_SPI_ADC", 0x3C, 0x00)
-    #     time.sleep(0.01);
-    #     boardwithmodules.write("BOARD0", "AREA_SPI_ADC", 0x41, 0x14)
-    #     time.sleep(0.01);
-    #     boardwithmodules.write("BOARD0", "AREA_SPI_ADC", 0x00, 0x0D)
-    #     time.sleep(0.01);
-    #     boardwithmodules.write("BOARD0", "AREA_SPI_ADC", 0x01, 0xFF)
-    #     time.sleep(0.01);
-    #
-    #     # reset ADCs after programming clocks
-    #     boardwithmodules.write("BOARD0", "WORD_ADC_ENA", 0)
-    #     time.sleep(0.01);
-    #     boardwithmodules.write("BOARD0", "WORD_ADC_ENA", 1)
-    #     time.sleep(0.01);
-    #
-    #     # reset the board
-    #     boardwithmodules.write("BOARD0", "WORD_RESET_N", 0)
-    #     time.sleep(0.01)
-    #     boardwithmodules.write("BOARD0", "WORD_RESET_N", 1)
-    #     time.sleep(0.01)
-    #
-    #     # initialise timing registers
-    #     boardwithmodules.write("APP0", "WORD_TIMING_INT_ENA", int('11111000', 2))
-    #     boardwithmodules.write("APP0", "WORD_TIMING_FREQ", [499999, 2499999, 8, 8, 8, 8, 8, 8])
-    #
-    #     # configure trigger
-    #     boardwithmodules.write("APP0", "WORD_TIMING_TRG_SEL", 1)  # must match x2timer configuration
-    #
-    #     # enable and configure DAQ
-    #     boardwithmodules.write("APP0", "WORD_DAQ_ENABLE", 3)
-    #     boardwithmodules.write("APP0", "WORD_DAQ_MUX", [0, 1])
-    #
-    #     # # enable DAC
-    #     # boardwithmodules.write("BOARD0", "WORD_DAC_ENA", 1)
-    #     # time.sleep(0.01)
-    #     #
-    #     # # program common mode DAC for VM
-    #     # boardwithmodules.write("DS8VM1", "WORD_DACAB", 850)
-    #     #
-    #     # # write BOOT_STATUS flag to speed up initialisation on next server start
-    #     # boardwithmodules.write("BOARD0", "WORD_BOOT_STATUS", 1)
-    #
-    # elif status == 1:
-    #     print("Performing quick initialisation...")
-    #
-    #     clockFrequency = boardwithmodules.read("BOARD0", "WORD_CLK_FREQ", 1, 1)
-    #     if (abs(clockFrequency[0] - 65000000) > 10000):
-    #         print("*****************************************************")
-    #         print("  Wrong clock frequency detected: " + str(clockFrequency[0] / 1000000) + " MHz")
-    #         print("*****************************************************")
-    #         sys.exit(1)
-    #
-    #     print("Correct clock frequency detected: " + str(clockFrequency[0] / 1000000) + " MHz")
-    #
-    # else:
-    #     print("*****************************************************")
-    #     print("  Unexpected content of WORD_BOOT_STATUS found: " + str(status[0]))
-    #     print("  PCIe communication problems?")
-    #     print("*****************************************************")
-    #
-    # print("Initialisation complete.")
+    global boardwithmodules
+
+    # reset the FPGA
+    boardwithmodules.write("BOARD0", "WORD_RESET_N", 0)
+    time.sleep(0.01)
+    boardwithmodules.write("BOARD0", "WORD_RESET_N", 1)
+    time.sleep(0.01)
+
+    initial_clockFrequency = boardwithmodules.read("BOARD0", "WORD_CLK_FREQ", 1, 1)
+    print("Initial Clock Frequency: " + str(initial_clockFrequency[0] / 1000000) + " MHz")
+
+    """
+
+    $$$$$   PLL Configuration of DS8VM1   $$$$$
+
+    """
+
+    print('Starting with PLL Configuration')
+
+    # Bypassing the reference divider on DS8VM1     0x0=> divide by 1
+    #                                               0x1=> divide by 2
+    #                                               0x2=> divide by 3
+    #                                               0x3=> divide by 4
+    boardwithmodules.write('DS8VM10', 'WORD_DIV_B', 0)
+
+    # Selecting the SMA CLK for CLKin1
+    boardwithmodules.write('DS8VM10', 'WORD_VCO_MUX', 1)
+
+    # 0 => SMA Ref goes to CLKin2 + CPout1 goes into OSCin  1 => SMA Ref goes directly into OSCin
+    boardwithmodules.write('DS8VM10', 'WORD_SW_VCTL', 1)
+
+    # Create empty array for PLL configuration data
+    registers = []
+
+    # Open the file that comes from CodeLoader
+    pll_file = open('PLL_Config_Clock_Distr.txt')
+    pll_data = pll_file.readlines()
+
+    for line in pll_data:
+        register_string = line.strip().split()  # get rid of OS dependency
+        registers.append(int(register_string[-1], 16))  # Convert to int
+
+    print('Here is all the PLL Configuration Registers: {}'.format(registers))
+
+    for index in range(len(registers)):
+        boardwithmodules.write('DS8VM10', 'WORD_PLL_DATA', registers[index])
+        time.sleep(1)  # Wait for 1 second
+
+    print('PLL Configuration is done')
+
+    print('Configuring the clock of SIS8300L2')
+    boardwithmodules.write('BOARD0', 'WORD_CLK_MUX', 0, 0)  # Mux 1A (Choose RTM_CLK2)
+    time.sleep(0.01)  # Wait for 10ms
+    boardwithmodules.write('BOARD0', 'WORD_CLK_MUX', 0, 1)  # Mux 1B (Choose RTM_CLK2)
+    time.sleep(0.01)
+    boardwithmodules.write('BOARD0', 'WORD_CLK_MUX', 0, 2)  # Mux 2A
+    time.sleep(0.01)
+    boardwithmodules.write('BOARD0', 'WORD_CLK_MUX', 0, 3)  # Mux 2B
+    time.sleep(0.01)
+
+    # Resetting of the AD9510
+    # Select internal clock to be used as a source (FPGA will use internal clock for briefly)
+    # Once configuration is complete we will switch it back to external(better) clock
+    boardwithmodules.write('BOARD0', 'WORD_CLK_SEL', 0)
+
+    # Set Divider Reset Pin to function as reset
+    boardwithmodules.write('BOARD0', 'AREA_SPI_DIV', int(0x00), int(0x58))
+    time.sleep(0.01)
+    boardwithmodules.write('BOARD0', 'AREA_SPI_DIV', int(0x01), int(0x5A))
+    time.sleep(0.02)
+
+    # Reset Clock
+    boardwithmodules.write('BOARD0', 'WORD_CLK_RST', 1)
+    time.sleep(0.01)
+    boardwithmodules.write('BOARD0', 'WORD_CLK_RST', 0)
+    time.sleep(0.01)
+
+    # Configuration of the AD9510
+    # Set Input Clock Source
+    # 0 => Directly from RTM     1=> From Muxes
+    boardwithmodules.write('BOARD0', 'AREA_SPI_DIV', 0, int(0x45))
+    time.sleep(0.01)
+
+    # B counter bypass + FD Mode(divide by 1) + Synchronous power down
+    boardwithmodules.write('BOARD0', 'AREA_SPI_DIV', int(0x43), int(0x0A))
+    time.sleep(0.01)
+
+    # Setting output voltage for OUT0-3 to 660mV
+    boardwithmodules.write('BOARD0', 'AREA_SPI_DIV', int(0x0C), int(0x3C))
+    time.sleep(0.01)
+    boardwithmodules.write('BOARD0', 'AREA_SPI_DIV', int(0x0C), int(0x3D))
+    time.sleep(0.01)
+    boardwithmodules.write('BOARD0', 'AREA_SPI_DIV', int(0x0C), int(0x3E))
+    time.sleep(0.01)
+    boardwithmodules.write('BOARD0', 'AREA_SPI_DIV', int(0x0C), int(0x3F))
+    time.sleep(0.01)
+
+    # Choose 3.5 mA with 100 Ohm termination for OUT4-OUT7
+    boardwithmodules.write('BOARD0', 'AREA_SPI_DIV', int(0x02), int(0x40))
+    time.sleep(0.01)
+    boardwithmodules.write('BOARD0', 'AREA_SPI_DIV', int(0x02), int(0x41))
+    time.sleep(0.01)
+    boardwithmodules.write('BOARD0', 'AREA_SPI_DIV', int(0x02), int(0x42))
+    time.sleep(0.01)
+    boardwithmodules.write('BOARD0', 'AREA_SPI_DIV', int(0x02), int(0x43))
+    time.sleep(0.01)
+
+    print ('Clock dividers are OFF')
+    # Bypass and power down divider logic route clock directly to output
+    boardwithmodules.write('BOARD0', 'AREA_SPI_DIV', int(0x80), int(0x49))
+    time.sleep(0.01)
+    boardwithmodules.write('BOARD0', 'AREA_SPI_DIV', int(0x80), int(0x4B))
+    time.sleep(0.01)
+    boardwithmodules.write('BOARD0', 'AREA_SPI_DIV', int(0x80), int(0x4D))
+    time.sleep(0.01)
+    boardwithmodules.write('BOARD0', 'AREA_SPI_DIV', int(0x80), int(0x4F))
+    time.sleep(0.01)
+    boardwithmodules.write('BOARD0', 'AREA_SPI_DIV', int(0x80), int(0x51))
+    time.sleep(0.01)
+    boardwithmodules.write('BOARD0', 'AREA_SPI_DIV', int(0x80), int(0x53))
+    time.sleep(0.01)
+    boardwithmodules.write('BOARD0', 'AREA_SPI_DIV', int(0x80), int(0x55))
+    time.sleep(0.01)
+    boardwithmodules.write('BOARD0', 'AREA_SPI_DIV', int(0x80), int(0x57))
+    time.sleep(0.01)
+
+    # Save send data
+    boardwithmodules.write('BOARD0', 'AREA_SPI_DIV', int(0x81), int(0x5A))
+    time.sleep(0.01)
+
+    # Wait for Clock to Stabilize
+    time.sleep(3)
+
+    print ('Configuring the ADCs')
+
+    # Reset the FPGA
+    boardwithmodules.write('BOARD0', 'WORD_RESET_N', 0)
+    boardwithmodules.write('BOARD0', 'WORD_RESET_N', 1)
+    time.sleep(0.5)  # Wait for 500 ms
+
+    boardwithmodules.write('BOARD0', 'AREA_SPI_ADC', int(0x3C), int(0x00))
+    time.sleep(1)  # Wait for 1 second
+    boardwithmodules.write('BOARD0', 'AREA_SPI_ADC', int(0x01), int(0xFF))
+    time.sleep(0.5)  # Wait for 500 ms
+
+    boardwithmodules.write('BOARD0', 'AREA_SPI_ADC', int(0x41), int(0x14))
+    time.sleep(1)  # Wait for 1 second
+    boardwithmodules.write('BOARD0', 'AREA_SPI_ADC', int(0x00), int(0x0D))
+    time.sleep(1)  # Wait for 1 second
+    boardwithmodules.write('BOARD0', 'AREA_SPI_ADC', int(0x01), int(0xFF))
+
+    boardwithmodules.write('BOARD0', 'WORD_ADC_ENA', 0)
+    time.sleep(1)  # Wait for 1 second
+    boardwithmodules.write('BOARD0', 'WORD_ADC_ENA', 1)
+
+    print ('ADC Configuration DONE')
+    print ('Configuring Timing (External Clock)')
+    configuretiming(timing_frequency=7800000 - 1)
+
+    clockFrequency = boardwithmodules.read("BOARD0", "WORD_CLK_FREQ", 1, 1)
+
+    if (abs(clockFrequency[0] - 78000000) > 10000):
+        print("*****************************************************")
+        print("  Wrong clock frequency detected: " + str(clockFrequency[0] / 1000000) + " MHz")
+        print("*****************************************************")
+    else:
+        print("Correct clock frequency detected: " + str(clockFrequency[0] / 1000000) + " MHz")
+        # Since External Clock is now stable, switch to it and start using it.
+        boardwithmodules.write('BOARD0', 'WORD_CLK_SEL', 1)

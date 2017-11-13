@@ -60,8 +60,9 @@ class MainWindow(QtGui.QMainWindow):
         self._plotWindow = PlotWindow(self)
 
         # Configuration Parameters
-        self.max_freq_jitter = 3000     # 1kHz
+        self.max_freq_jitter = 100000     # 1kHz
         self.internal_clock_frequency = 62500000    # 62.5 MHz
+        self.external_clock_frequency = 78000000    # 78 MHz
 
     def connecttoboardispressed(self):
 
@@ -95,7 +96,7 @@ class MainWindow(QtGui.QMainWindow):
             self.progressBar.setValue(80)
 
             self.textBrowser_console.append('Configure the Timing')
-            deviceaccess.configuretiming()
+            deviceaccess.configuretiming(timing_frequency=6250000-1)
             self.progressBar.setValue(100)
 
             print (deviceaccess.readexternalclockfrequency() - self.internal_clock_frequency)
@@ -112,7 +113,15 @@ class MainWindow(QtGui.QMainWindow):
             self.pushButton_initializeboard.setEnabled(True)
 
         elif externalclockpreference:
-            self.textBrowser_console.append('External Clock Configuration not available -Yet-')
+            self.textBrowser_console.append('Starting Configuration for external clock')
+            deviceaccess.external_clock_initilization()
+
+            if deviceaccess.readexternalclockfrequency() - self.external_clock_frequency < self.max_freq_jitter:
+                self.textBrowser_console.append('Timing Configuration Completed.  \n Frequency = {} Hz'.
+                                                format(deviceaccess.readexternalclockfrequency()))
+            else:
+                self.textBrowser_console.append('Wrong clock frequency detected. \n Frequency = {} Hz'.
+                                                format(deviceaccess.readexternalclockfrequency()))
 
         else:
             self.textBrowser_console.append('Please choose clock source first')
