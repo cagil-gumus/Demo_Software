@@ -72,7 +72,11 @@ class MainWindow(QtGui.QMainWindow):
 
         if connection_status:
             self.textBrowser_console.append('Connection Established')
-            self.label_connectionstatus.setText('Connection Status: Connected')
+            if deviceaccess.readboardstatus() != 0:
+                self.label_connectionstatus.setText('Connection Status: Connected \nBoard is Initialized')
+            else:
+                self.label_connectionstatus.setText('Connection Status: Connected \nBoard is not Initialized')
+
         else:
             self.textBrowser_console.append('Cannot connect to AMC')
             self.label_connectionstatus.setText('Connection Status: Failed')
@@ -81,6 +85,7 @@ class MainWindow(QtGui.QMainWindow):
 
         internalclockpreference = self.radioButton_internalclock.isChecked()
         externalclockpreference = self.radioButton_externalclock.isChecked()
+        clockgenerationpreference = self.radioButton_clock_generation.isChecked()
 
         if internalclockpreference:
             self.textBrowser_console.append('Starting Configuration')
@@ -105,6 +110,7 @@ class MainWindow(QtGui.QMainWindow):
             if deviceaccess.readexternalclockfrequency() - self.internal_clock_frequency < self.max_freq_jitter:
                 self.textBrowser_console.append('Timing Configuration Completed.  \n Frequency = {} Hz'.
                                                 format(deviceaccess.readexternalclockfrequency()))
+                deviceaccess.writeboardstatus(status=1)     # Writing 1 for internal clock initialization
 
             else:
                 self.textBrowser_console.append('Wrong clock frequency detected. \n Frequency = {} Hz'.
@@ -113,15 +119,30 @@ class MainWindow(QtGui.QMainWindow):
             self.pushButton_initializeboard.setEnabled(True)
 
         elif externalclockpreference:
-            self.textBrowser_console.append('Starting Configuration for external clock')
-            deviceaccess.external_clock_initilization()
+            self.textBrowser_console.append('Starting Configuration for external clock distribution')
+            deviceaccess.external_clock_initilization(PLLsetting='Clock Distribution')
 
             if deviceaccess.readexternalclockfrequency() - self.external_clock_frequency < self.max_freq_jitter:
                 self.textBrowser_console.append('Timing Configuration Completed.  \n Frequency = {} Hz'.
                                                 format(deviceaccess.readexternalclockfrequency()))
+                deviceaccess.writeboardstatus(status=2)  # Writing 2 for external clock initialization
             else:
                 self.textBrowser_console.append('Wrong clock frequency detected. \n Frequency = {} Hz'.
                                                 format(deviceaccess.readexternalclockfrequency()))
+                deviceaccess.writeboardstatus(status=0)  # Writing 0 for failed clock initialization
+
+        elif clockgenerationpreference:
+            self.textBrowser_console.append('Starting Configuration for external clock distribution')
+            deviceaccess.external_clock_initilization(PLLsetting='Clock Generation')
+
+            if deviceaccess.readexternalclockfrequency() - self.external_clock_frequency < self.max_freq_jitter:
+                self.textBrowser_console.append('Timing Configuration Completed.  \n Frequency = {} Hz'.
+                                                format(deviceaccess.readexternalclockfrequency()))
+                deviceaccess.writeboardstatus(status=2)  # Writing 2 for external clock initialization
+            else:
+                self.textBrowser_console.append('Wrong clock frequency detected. \n Frequency = {} Hz'.
+                                                format(deviceaccess.readexternalclockfrequency()))
+                deviceaccess.writeboardstatus(status=0)  # Writing 0 for failed clock initialization
 
         else:
             self.textBrowser_console.append('Please choose clock source first')

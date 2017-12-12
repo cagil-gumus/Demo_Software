@@ -138,7 +138,7 @@
     <widget class="QWidget" name="BoardSetup">
      <attribute name="icon">
       <iconset>
-       <normaloff>../.designer/.designer/.designer/backup/DESY-Logo-cyan-RGB_ger.png</normaloff>../.designer/.designer/.designer/backup/DESY-Logo-cyan-RGB_ger.png</iconset>
+       <normaloff>../../.designer/.designer/.designer/.designer/backup/DESY-Logo-cyan-RGB_ger.png</normaloff>../../.designer/.designer/.designer/.designer/backup/DESY-Logo-cyan-RGB_ger.png</iconset>
      </attribute>
      <attribute name="title">
       <string>Board Setup</string>
@@ -280,6 +280,115 @@
       <property name="text">
        <string>Connection Status: Not Connected</string>
       </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="BoardInitialization">
+     <attribute name="title">
+      <string>Board Initialization </string>
+     </attribute>
+     <widget class="QGroupBox" name="groupBox">
+      <property name="geometry">
+       <rect>
+        <x>80</x>
+        <y>80</y>
+        <width>631</width>
+        <height>201</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>Main Clock Source</string>
+      </property>
+      <layout class="QGridLayout" name="gridLayout">
+       <item row="1" column="2">
+        <widget class="QPushButton" name="pushButton_initializeboard">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>Initialize Board</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="2">
+        <widget class="QRadioButton" name="radioButton_clock_generation">
+         <property name="text">
+          <string>Clock Generation from Reference Signal</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QRadioButton" name="radioButton_externalclock">
+         <property name="text">
+          <string>Clock Distribtion from RTM</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="4">
+        <widget class="QRadioButton" name="radioButton_internalclock">
+         <property name="text">
+          <string>Internal Clock</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="2">
+        <widget class="QProgressBar" name="progressBar">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="value">
+          <number>0</number>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QGroupBox" name="groupBox_2">
+      <property name="geometry">
+       <rect>
+        <x>210</x>
+        <y>320</y>
+        <width>351</width>
+        <height>101</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>RTM PLL Configuration</string>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_codeloader_status">
+         <property name="text">
+          <string>CodeLoader File: Null</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_pll_status">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>PLL Status: Not Configured</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QPushButton" name="pushButton_pllconfig">
+         <property name="text">
+          <string>Select Codeloader File and Configure </string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </widget>
     <widget class="QWidget" name="BoardInformation">
@@ -457,105 +566,6 @@
       <property name="text">
        <string>SIS8300 AMC Information</string>
       </property>
-     </widget>
-    </widget>
-    <widget class="QWidget" name="ClockConfiguration">
-     <attribute name="title">
-      <string>Clock Configuration</string>
-     </attribute>
-     <widget class="QSplitter" name="splitter">
-      <property name="geometry">
-       <rect>
-        <x>180</x>
-        <y>90</y>
-        <width>363</width>
-        <height>261</height>
-       </rect>
-      </property>
-      <property name="orientation">
-       <enum>Qt::Vertical</enum>
-      </property>
-      <widget class="QGroupBox" name="groupBox">
-       <property name="title">
-        <string>Main Clock Source</string>
-       </property>
-       <layout class="QGridLayout" name="gridLayout">
-        <item row="0" column="0">
-         <widget class="QRadioButton" name="radioButton_externalclock">
-          <property name="text">
-           <string>External Clock from RTM</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="QRadioButton" name="radioButton_internalclock">
-          <property name="text">
-           <string>Internal Clock</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0" colspan="2">
-         <widget class="QPushButton" name="pushButton_initializeboard">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>Initialize Board</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0" colspan="2">
-         <widget class="QProgressBar" name="progressBar">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="value">
-           <number>0</number>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QGroupBox" name="groupBox_2">
-       <property name="title">
-        <string>RTM PLL Configuration</string>
-       </property>
-       <layout class="QGridLayout" name="gridLayout_2">
-        <item row="1" column="0">
-         <widget class="QLabel" name="label_codeloader_status">
-          <property name="text">
-           <string>CodeLoader File: Null</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_pll_status">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>PLL Status: Not Configured</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QPushButton" name="pushButton_pllconfig">
-          <property name="text">
-           <string>Select Codeloader File and Configure </string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
      </widget>
     </widget>
     <widget class="QWidget" name="AttenuatorConfiguration">

@@ -344,7 +344,7 @@ def setattvalues(channel1_att_value_set, channel2_att_value_set, channel3_att_va
     time.sleep(0.01)
 
 
-def external_clock_initilization():
+def external_clock_initilization(PLLsetting):
 
     global boardwithmodules
 
@@ -380,8 +380,17 @@ def external_clock_initilization():
     # Create empty array for PLL configuration data
     registers = []
 
-    # Open the file that comes from CodeLoader
-    pll_file = open('PLL_Config_Clock_Distr.txt')
+    if PLLsetting == 'Clock Distribution':
+        # Open the file that comes from CodeLoader
+        pll_file = open('PLL_Config_Clock_Distr.txt')
+        print 'Clock Distribution selected'
+
+    elif PLLsetting == 'Clock Generation':
+        pll_file = open('PLL_Config_260MHz_to_78MHz_clock.txt')
+        print 'Clock generation selected'
+    else:
+        print('Undefined PLL Configuration')
+
     pll_data = pll_file.readlines()
 
     for line in pll_data:
@@ -515,3 +524,14 @@ def external_clock_initilization():
         print("Correct clock frequency detected: " + str(clockFrequency[0] / 1000000) + " MHz")
         # Since External Clock is now stable, switch to it and start using it.
         boardwithmodules.write('BOARD0', 'WORD_CLK_SEL', 1)
+
+
+def writeboardstatus(status):
+    global boardwithmodules
+    boardwithmodules.write('BOARD0', 'WORD_USER', status)
+
+
+def readboardstatus():
+    global boardwithmodules
+    boardstatus = boardwithmodules.read("BOARD0", "WORD_USER")
+    return boardstatus
