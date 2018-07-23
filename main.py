@@ -197,7 +197,6 @@ class MainWindow(QtGui.QMainWindow):
                                   channel4_att_value_set, channel5_att_value_set, channel6_att_value_set,
                                   channel7_att_value_set, channel8_att_value_set)
 
-
     def pllconfiguration(self):
         # Grabs the txt file from user, parses it, grabs the values for registers
         # Sends it to FPGA ( FPGA uses I2C to configure the PLL of DS8VM1)
