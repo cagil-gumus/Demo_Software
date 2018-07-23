@@ -247,7 +247,7 @@ def readdma(buffer_size):
     # Read the DMA Area
     global boardwithmodules
 
-    data = boardwithmodules.read_sequences('BOARD.0', 'DMA_SECONDARY')
+    data = boardwithmodules.read_sequences('APP.0', 'DAQ1_BUF0_RAW')
 
     channel_1_data = data[:buffer_size, 0]
     channel_2_data = data[:buffer_size, 1]
@@ -273,30 +273,20 @@ def configurepll(registers):
         boardwithmodules.write('DS8VM1.0', 'WORD_PLL_DATA', int(registers[index]))
         time.sleep(1)  # Wait for 1 second
 
-
-def getrtmfirmware():
-    global boardwithmodules
-    rtm_firmware = boardwithmodules.read("BOARD.0", "WORD_FIRMWARE")
-    return rtm_firmware
-
-
-def getamcfirmware():
-    global boardwithmodules
-    amc_firmware = boardwithmodules.read("APP.0", "WORD_FIRMWARE_APP")
-    return amc_firmware
-
-
-def getrtmrevision():
-    global boardwithmodules
-    rtm_revision = boardwithmodules.read("BOARD.0", "WORD_REVISION")
-    return rtm_revision
-
-
 def getamcrevision():
     global boardwithmodules
-    amc_firmware = boardwithmodules.read("APP.0", "WORD_REVISION_APP")
+    amc_firmware = int(boardwithmodules.read("BOARD.0", "WORD_REVISION")) >> 16
     return amc_firmware
 
+def getrtmtemperature():
+    global boardwithmodules
+    rtm_temperature = boardwithmodules.read("DS8VM1.0", "WORD_TEMP_E")
+    return  rtm_temperature
+
+def getrtmpllstatus():
+    global boardwithmodules
+    pll_status = boardwithmodules.read("DS8VM1.0", "WORD_IO_STATUS")
+    return pll_status
 
 def setattvalues(channel1_att_value_set, channel2_att_value_set, channel3_att_value_set, channel4_att_value_set,
     channel5_att_value_set, channel6_att_value_set, channel7_att_value_set, channel8_att_value_set):

@@ -173,12 +173,21 @@ class MainWindow(QtGui.QMainWindow):
         self.textBrowser_console.append('Reset Completed')
 
     def readboardinfoispressed(self):
-        self.label_amc_firmware.setText('Firmware: {}'.format(deviceaccess.getamcfirmware()))
-        self.label_rtm_firmware.setText('Firmware: {}'.format(deviceaccess.getrtmfirmware()))
-        self.label_amc_revision.setText('Revision: {}'.format(deviceaccess.getamcrevision()))
-        self.label_rtm_revision.setText('Revision: {}'.format(deviceaccess.getrtmrevision()))
+
+        self.label_revision.setText('Firmware Revision: r{}'.format(deviceaccess.getamcrevision()))
         self.label_mainclock.setText("Main Clock Frequency: {} MHz"
                                      .format(float(deviceaccess.readexternalclockfrequency()) / 1000000))
+        self.label_rtm_boardtemperature.setText("Board Temperature: {} Celcius".format(int(deviceaccess.getrtmtemperature())>>8))
+
+        pll_status = int(deviceaccess.getrtmpllstatus())
+        print pll_status
+
+        if pll_status == 1:
+            self.label_pll_status.setText("PLL Status: Locked to Reference Signal")
+            self.label_pll_status_2.setText("PLL Status: Locked to Reference Signal")
+        else:
+            self.label_pll_status.setText("PLL Status: Not Locked")
+            self.label_pll_status_2.setText("PLL Status: Not Locked")
 
     def setattvalueispressed(self):
 
