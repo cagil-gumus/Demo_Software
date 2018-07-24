@@ -14,9 +14,9 @@ Date: 24.04.2017
 
 from PyQt4 import QtGui, QtCore, uic
 import sys
-import numpy as np
 import pyqtgraph as pg
 import deviceaccess
+import time
 
 
 class MainWindow(QtGui.QMainWindow):
@@ -88,28 +88,52 @@ class MainWindow(QtGui.QMainWindow):
         clockgenerationpreference = self.radioButton_clock_generation.isChecked()
 
         if internalclockpreference:
-            self.textBrowser_console.append('Starting Configuration')
-
+            self.textBrowser_console.append('Starting internal clock setting configuration...')
+            self.progressBar.setValue(0)
+            # Disable the button until init ends
             self.pushButton_initializeboard.setEnabled(False)
 
+            # Bring board out of reset state
+            self.textBrowser_console.append('Cycle Reset the FPGA')
+            deviceaccess.resetboard()
+            self.progressBar.setValue(10)
+
+            # Switch to internal clock for application for short time
+            self.textBrowser_console.append('Application clock gets internal fabric FPGA clock for short time')
+            deviceaccess.applicationclocksource(source='internal')
+            self.progressBar.setValue(15)
+
             self.textBrowser_console.append('Initializing the clock')
-            deviceaccess.clockinitilization()
-            self.progressBar.setValue(40)
+            deviceaccess.muxconfiguration(mux_config='quartz')
+            self.progressBar.setValue(30)
+
+            self.textBrowser_console.append('Configuring the PLL of SIS8300L2')
+            deviceaccess.configureclockdividers(divider_input='from_muxes', division=4)
+            self.progressBar.setValue(60)
 
             self.textBrowser_console.append('Configuring the ADCs of AMC')
             deviceaccess.configureadcs()
             self.progressBar.setValue(80)
 
-            self.textBrowser_console.append('Configure the Timing')
+            self.textBrowser_console.append('Configure the Triggers')
             deviceaccess.configuretiming(timing_frequency=6250000-1)
+            self.progressBar.setValue(90)
+
+            self.textBrowser_console.append('Configure the DAQ')
+            deviceaccess.configureDAQ()
+            self.progressBar.setValue(95)
+
+            # Switch to internal clock for application for short time
+            self.textBrowser_console.append('Application gets clock coming outside of the FPGA')
+            deviceaccess.applicationclocksource(source='external')
             self.progressBar.setValue(100)
 
-            print (deviceaccess.readexternalclockfrequency() - self.internal_clock_frequency)
-            print self.max_freq_jitter
+            # We wait for 2 seconds to get stable frequency readout
+            time.sleep(2)
 
             if deviceaccess.readexternalclockfrequency() - self.internal_clock_frequency < self.max_freq_jitter:
-                self.textBrowser_console.append('Timing Configuration Completed.  \n Frequency = {} Hz'.
-                                                format(deviceaccess.readexternalclockfrequency()))
+                self.textBrowser_console.append('Board Configuration Completed with internal clock setting.  '
+                                                '\n Frequency = {} Hz'.format(deviceaccess.readexternalclockfrequency()))
                 deviceaccess.writeboardstatus(status=1)     # Writing 1 for internal clock initialization
 
             else:
@@ -118,31 +142,74 @@ class MainWindow(QtGui.QMainWindow):
 
             self.pushButton_initializeboard.setEnabled(True)
 
-        elif externalclockpreference:
-            self.textBrowser_console.append('Starting Configuration for external clock distribution')
-            deviceaccess.external_clock_initilization(PLLsetting='Clock Distribution')
+        elif clockgenerationpreference or externalclockpreference:
 
-            if deviceaccess.readexternalclockfrequency() - self.external_clock_frequency < self.max_freq_jitter:
-                self.textBrowser_console.append('Timing Configuration Completed.  \n Frequency = {} Hz'.
-                                                format(deviceaccess.readexternalclockfrequency()))
-                deviceaccess.writeboardstatus(status=2)  # Writing 2 for external clock initialization
+            self.textBrowser_console.append('Starting external clock configuration')
+            self.progressBar.setValue(0)
+            # Disable the button until init ends
+            self.pushButton_initializeboard.setEnabled(False)
+
+            # Bring board out of reset state
+            self.textBrowser_console.append('Cycle Reset the FPGA')
+            deviceaccess.resetboard()
+            self.progressBar.setValue(10)
+
+            # Switch to internal clock for application for short time
+            self.textBrowser_console.append('Application clock gets internal fabric FPGA clock for short time')
+            deviceaccess.applicationclocksource(source='internal')
+            self.progressBar.setValue(12)
+
+            if clockgenerationpreference:
+                self.textBrowser_console.append('Configuring the PLL of DS8VM1 for clock generation mode...')
+                deviceaccess.configureDS8VM1pll(PLLsetting='Clock Generation')
+                self.progressBar.setValue(15)
+            elif externalclockpreference:
+                self.textBrowser_console.append('Configuring the PLL of DS8VM1 for clock distribution mode...')
+                deviceaccess.configureDS8VM1pll(PLLsetting='Clock Distribution')
+                self.progressBar.setValue(15)
+            else:
+                print 'ERROR: Invalid Configuration setting!'
+
+            self.textBrowser_console.append('Initializing the clock')
+            deviceaccess.muxconfiguration(mux_config='zone3_clock')
+            self.progressBar.setValue(30)
+
+            self.textBrowser_console.append('Configuring the PLL of SIS8300L2')
+            deviceaccess.configureclockdividers(divider_input='from_RTM', division=0)
+            self.progressBar.setValue(60)
+
+            self.textBrowser_console.append('Configuring the ADCs of AMC')
+            deviceaccess.configureadcs()
+            self.progressBar.setValue(80)
+
+            # We are expecting 78MHz coming from RTM hence we change our timing_frequency in order to have 10Hz trigger
+            self.textBrowser_console.append('Configure the Triggers')
+            deviceaccess.configuretiming(timing_frequency=7800000 - 1)
+            self.progressBar.setValue(90)
+
+            self.textBrowser_console.append('Configure the DAQ')
+            deviceaccess.configureDAQ()
+            self.progressBar.setValue(100)
+
+            # Waiting for clock frequency readout to be stable
+            time.sleep(3)
+
+            if abs(deviceaccess.readexternalclockfrequency() - self.external_clock_frequency) < self.max_freq_jitter:
+                self.textBrowser_console.append('Board Configuration Completed with external clock. '
+                                                ' \n Frequency = {} Hz'.format(deviceaccess.readexternalclockfrequency()))
+                if externalclockpreference:
+                    # Writing 2 for external clock initialization with clock distr.
+                    deviceaccess.writeboardstatus(status=2)
+                elif clockgenerationpreference:
+                    # Writing 3 for external clock init with clock generation
+                    deviceaccess.writeboardstatus(status=3)
             else:
                 self.textBrowser_console.append('Wrong clock frequency detected. \n Frequency = {} Hz'.
                                                 format(deviceaccess.readexternalclockfrequency()))
                 deviceaccess.writeboardstatus(status=0)  # Writing 0 for failed clock initialization
 
-        elif clockgenerationpreference:
-            self.textBrowser_console.append('Starting Configuration for external clock distribution')
-            deviceaccess.external_clock_initilization(PLLsetting='Clock Generation')
-
-            if deviceaccess.readexternalclockfrequency() - self.external_clock_frequency < self.max_freq_jitter:
-                self.textBrowser_console.append('Timing Configuration Completed.  \n Frequency = {} Hz'.
-                                                format(deviceaccess.readexternalclockfrequency()))
-                deviceaccess.writeboardstatus(status=2)  # Writing 2 for external clock initialization
-            else:
-                self.textBrowser_console.append('Wrong clock frequency detected. \n Frequency = {} Hz'.
-                                                format(deviceaccess.readexternalclockfrequency()))
-                deviceaccess.writeboardstatus(status=0)  # Writing 0 for failed clock initialization
+            # Make button active again
+            self.pushButton_initializeboard.setEnabled(True)
 
         else:
             self.textBrowser_console.append('Please choose clock source first')
