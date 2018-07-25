@@ -17,6 +17,7 @@ import sys
 import pyqtgraph as pg
 import deviceaccess
 import time
+import numpy as np
 
 
 class MainWindow(QtGui.QMainWindow):
@@ -55,6 +56,13 @@ class MainWindow(QtGui.QMainWindow):
         self.pushButton_resetboard.clicked.connect(self.resetbuttonispressed)
         self.pushButton_pllconfig.clicked.connect(self.pllconfiguration)
         self.pushButton_set_att_values.clicked.connect(self.setattvalueispressed)
+
+        #Slider Connections to the methods
+        self.verticalSlider_amplitude.valueChanged.connect(self.updatefeedforwardtable)
+        self.horizontalSlider_phase.valueChanged.connect(self.updatefeedforwardtable)
+
+        #Check for enabling VM
+        self.checkBox_vm_enable.stateChanged.connect(self.setfeedforward)
 
         #  Create emtpy object for instance from PlotWindow class
         self._plotWindow = PlotWindow(self)
@@ -356,13 +364,27 @@ class MainWindow(QtGui.QMainWindow):
         return list_of_selected_chekboxes
 
     def getslotselection(self):
-
         self.slotselection = self.comboBox_slotnumber.currentText()
         return int(self.slotselection)
 
     def getbufferlength(self):
         self._bufferlength = self.bufferlength.value()
         return self._bufferlength
+
+    def updatefeedforwardtable(self):
+        print self.verticalSlider_amplitude.value()
+        amplitude = self.verticalSlider_amplitude.value()
+        phase = self.horizontalSlider_phase.value()
+
+        # Calculate the I and Q from Amplitude and Phase
+        I = int(amplitude * np.cos(phase))
+
+        Q = int(amplitude * np.sin(phase))
+
+        deviceaccess.updateFFtable(I, Q)
+
+    def setfeedforward(self):
+        deviceaccess.enablefeedforward(status=self.checkBox_vm_enable.isChecked())
 
 
 class PlotWindow(QtGui.QWidget):

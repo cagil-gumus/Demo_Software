@@ -480,3 +480,32 @@ def setcommonmodeDAC(value):
 def disablelimiters():
     global boardwithmodules
     boardwithmodules.write('FD.0', 'WORD_AMP_LIMIT_DISABLE', int(0xFF))
+
+
+def updateFFtable(I, Q):
+    global boardwithmodules
+
+    # FF_I = np.full(shape=[16384], fill_value=I)
+    # FF_Q = np.full(shape=[16384], fill_value=Q)
+    #
+    # print FF_I
+    # print FF_Q
+    #
+    # boardwithmodules.write('CTABLES.0', 'AREA_FF_I', FF_I)
+    # boardwithmodules.write('CTABLES.0', 'AREA_FF_Q', FF_Q)
+    #
+    # for index in range(0, 16383):
+    #     boardwithmodules.write('CTABLES.0', 'AREA_FF_I', I, index)
+    #     boardwithmodules.write('CTABLES.0', 'AREA_FF_Q', Q, index)
+
+    #
+    # # Swap the buffers inside the FPGA
+    # boardwithmodules.write('CTABLES.0', 'BIT_CTL_TABLES_BUF', 1)
+    # time.sleep(0.1)
+    # boardwithmodules.write('CTABLES.0', 'BIT_CTL_TABLES_BUF', 0)
+
+def enablefeedforward(status):
+    # Enable/Disable Feed Forward 1 => Enable 0=> Disable
+
+    global boardwithmodules
+    boardwithmodules.write('CTRL.0', 'BIT_FF_ENA', int(status))
