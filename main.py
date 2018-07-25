@@ -109,18 +109,31 @@ class MainWindow(QtGui.QMainWindow):
 
             self.textBrowser_console.append('Configuring the PLL of SIS8300L2')
             deviceaccess.configureclockdividers(divider_input='from_muxes', division=4)
-            self.progressBar.setValue(60)
+            self.progressBar.setValue(50)
 
             self.textBrowser_console.append('Configuring the ADCs of AMC')
             deviceaccess.configureadcs()
-            self.progressBar.setValue(80)
+            self.progressBar.setValue(60)
 
             self.textBrowser_console.append('Configure the Triggers')
             deviceaccess.configuretiming(timing_frequency=6250000-1)
-            self.progressBar.setValue(90)
+            self.progressBar.setValue(70)
 
             self.textBrowser_console.append('Configure the DAQ')
             deviceaccess.configureDAQ()
+            self.progressBar.setValue(80)
+
+            self.textBrowser_console.append('Releasing Interlock')
+            deviceaccess.setinterlock(state=1)
+            self.progressBar.setValue(85)
+
+            self.textBrowser_console.append('Enabling DACs of SIS8300L2')
+            deviceaccess.setDAC(state=1)
+            self.progressBar.setValue(90)
+
+            self.textBrowser_console.append('Setting Common Voltage for Vector Modulator')
+            # Some f*cking magic number. Dont ask why
+            deviceaccess.setcommonmodeDAC(value=13600)
             self.progressBar.setValue(95)
 
             # Switch to internal clock for application for short time
@@ -176,23 +189,41 @@ class MainWindow(QtGui.QMainWindow):
 
             self.textBrowser_console.append('Configuring the PLL of SIS8300L2')
             deviceaccess.configureclockdividers(divider_input='from_RTM', division=0)
-            self.progressBar.setValue(60)
+            self.progressBar.setValue(50)
 
             self.textBrowser_console.append('Configuring the ADCs of AMC')
             deviceaccess.configureadcs()
-            self.progressBar.setValue(80)
+            self.progressBar.setValue(60)
 
             # We are expecting 78MHz coming from RTM hence we change our timing_frequency in order to have 10Hz trigger
             self.textBrowser_console.append('Configure the Triggers')
             deviceaccess.configuretiming(timing_frequency=7800000 - 1)
-            self.progressBar.setValue(90)
+            self.progressBar.setValue(70)
 
             self.textBrowser_console.append('Configure the DAQ')
             deviceaccess.configureDAQ()
+            self.progressBar.setValue(80)
+
+            self.textBrowser_console.append('Releasing Interlock') # Let RF go wild
+            deviceaccess.setinterlock(state=1)
+            self.progressBar.setValue(85)
+
+            self.textBrowser_console.append('Enabling DACs of SIS8300L2')
+            deviceaccess.setDAC(state=1)
+            self.progressBar.setValue(90)
+
+            self.textBrowser_console.append('Setting Common Voltage for Vector Modulator')
+            # Some f*cking magic number. Dont ask why
+            deviceaccess.setcommonmodeDAC(value=13600)
+            self.progressBar.setValue(95)
+
+            # Switch to internal clock for application for short time
+            self.textBrowser_console.append('Application gets clock coming outside of the FPGA')
+            deviceaccess.applicationclocksource(source='external')
             self.progressBar.setValue(100)
 
             # Waiting for clock frequency readout to be stable
-            time.sleep(3)
+            time.sleep(2)
 
             if abs(deviceaccess.readexternalclockfrequency() - self.external_clock_frequency) < self.max_freq_jitter:
                 self.textBrowser_console.append('Board Configuration Completed with external clock. '
@@ -236,7 +267,7 @@ class MainWindow(QtGui.QMainWindow):
     def resetbuttonispressed(self):
         # Reset the AMC
         self.textBrowser_console.append('Reseting the AMC')
-        # deviceaccess.resetboard()
+        deviceaccess.resetboard()
         self.textBrowser_console.append('Reset Completed')
 
     def readboardinfoispressed(self):

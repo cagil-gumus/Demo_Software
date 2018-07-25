@@ -345,16 +345,16 @@ def readdma(buffer_size):
 
     data = boardwithmodules.read_sequences('APP.0', 'DAQ1_BUF0_RAW')
 
-    channel_1_data = data[:buffer_size, 0]
-    channel_2_data = data[:buffer_size, 1]
-    channel_3_data = data[:buffer_size, 2]
-    channel_4_data = data[:buffer_size, 3]
-    channel_5_data = data[:buffer_size, 4]
-    channel_6_data = data[:buffer_size, 5]
-    channel_7_data = data[:buffer_size, 6]
-    channel_8_data = data[:buffer_size, 7]
-    channel_9_data = data[:buffer_size, 8]
-    channel_10_data = data[:buffer_size, 9]
+    channel_1_data = data[:buffer_size, 1]
+    channel_2_data = data[:buffer_size, 0]
+    channel_3_data = data[:buffer_size, 3]
+    channel_4_data = data[:buffer_size, 2]
+    channel_5_data = data[:buffer_size, 5]
+    channel_6_data = data[:buffer_size, 4]
+    channel_7_data = data[:buffer_size, 7]
+    channel_8_data = data[:buffer_size, 6]
+    channel_9_data = data[:buffer_size, 9]
+    channel_10_data = data[:buffer_size, 8]
 
     return channel_1_data, channel_2_data, channel_3_data, channel_4_data,\
            channel_5_data, channel_6_data, channel_7_data, channel_8_data, channel_9_data, channel_10_data
@@ -369,20 +369,24 @@ def configurepll(registers):
         boardwithmodules.write('DS8VM1.0', 'WORD_PLL_DATA', int(registers[index]))
         time.sleep(1)  # Wait for 1 second
 
+
 def getamcrevision():
     global boardwithmodules
     amc_firmware = int(boardwithmodules.read("BOARD.0", "WORD_REVISION")) >> 16
     return amc_firmware
+
 
 def getrtmtemperature():
     global boardwithmodules
     rtm_temperature = boardwithmodules.read("DS8VM1.0", "WORD_TEMP_E")
     return  rtm_temperature
 
+
 def getrtmpllstatus():
     global boardwithmodules
     pll_status = boardwithmodules.read("DS8VM1.0", "WORD_IO_STATUS")
     return pll_status
+
 
 def setattvalues(channel1_att_value_set, channel2_att_value_set, channel3_att_value_set, channel4_att_value_set,
     channel5_att_value_set, channel6_att_value_set, channel7_att_value_set, channel8_att_value_set):
@@ -437,7 +441,7 @@ def writeboardstatus(status):
 
 def readboardstatus():
     global boardwithmodules
-    boardstatus = boardwithmodules.read("BOARD.0", "WORD_USER")
+    boardstatus = boardwithmodules.read('APP.0', "WORD_USER")
     return boardstatus
 
 
@@ -451,3 +455,28 @@ def applicationclocksource(source):
         boardwithmodules.write('BOARD.0', 'WORD_CLK_SEL', 0)
     else:
         print 'Invalid Selection for App Clock'
+
+
+def setinterlock(state):
+    # When CON_RTM_INTERLOCK_NEGATE = 0 => WORD_INTERLOCK = 1 means drive is permitted
+    global boardwithmodules
+    boardwithmodules.write('DS8VM1.0', 'WORD_INTERLOCK', state)
+
+
+def setDAC(state):
+    # Enable/Disable DACs of SIS8300L2
+    global boardwithmodules
+    boardwithmodules.write('BOARD.0', 'WORD_DAC_ENA', state)
+
+
+def setcommonmodeDAC(value):
+    # DAC for VM inside DS8VM1
+    global boardwithmodules
+    boardwithmodules.write('DS8VM1.0', 'WORD_DAC_A', value)
+    time.sleep(0.01)
+    boardwithmodules.write('DS8VM1.0', 'WORD_DAC_B', value)
+
+
+def disablelimiters():
+    global boardwithmodules
+    boardwithmodules.write('FD.0', 'WORD_AMP_LIMIT_DISABLE', int(0xFF))
